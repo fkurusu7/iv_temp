@@ -1,35 +1,81 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/* eslint-disable react/prop-types */
+import { useState } from "react";
+import "./App.css";
+
+function Cell({ filled, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cell ${filled && "active"}`}
+      disabled={filled}
+    >
+      {/* */}
+    </button>
+  );
+}
+
+const configCells = [
+  [1, 1, 1],
+  [1, 0, 1],
+  [1, 1, 1],
+];
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [order, setOrder] = useState([]);
+
+  const deActivateCell = () => {
+    const timer = setInterval(() => {
+      setOrder((originalOrder) => {
+        const newOrder = originalOrder.slice();
+        newOrder.pop();
+
+        if (newOrder.length === 0) {
+          clearInterval(timer);
+        }
+        return newOrder;
+      });
+    }, 400);
+  };
+
+  const activateCell = (i) => {
+    const newOrder = [...order, i];
+    setOrder(newOrder);
+    console.log(newOrder);
+
+    // deactivate by retracing clicks
+    if (newOrder.length === configCells.flat(1).filter(Boolean).length) {
+      console.log("length reached");
+      deActivateCell();
+    }
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="wrapper">
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${configCells[0].length}, 1fr)`,
+          }}
+        >
+          {configCells
+            .flat(1)
+            .map((val, i) =>
+              val ? (
+                <Cell
+                  key={i}
+                  filled={order.includes(i)}
+                  onClick={() => activateCell(i)}
+                />
+              ) : (
+                <span key={i} />
+              )
+            )}
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
