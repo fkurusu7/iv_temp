@@ -1,0 +1,37 @@
+body {
+  background-color: #2a2929;
+  color: #e2e2e2;
+  text-align: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.grid {
+  border: 1px solid red;
+  padding: 5px;
+  /* width: calc(var(--cols) * 35px);
+  height: calc(var(--rows) * 35px); */
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 10), 35px);
+  grid-template-rows: repeat(var(--rows, 10), 35px);
+  gap: 2px;
+  user-select: none;
+}
+
+.box {
+  border: 1px solid #e2e2e2;
+  height: 35px;
+  width: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selected {
+  background-color: #3f3f3f;
+}
