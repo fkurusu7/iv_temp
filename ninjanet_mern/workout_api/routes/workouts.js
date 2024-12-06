@@ -1,5 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
+// Protect all paths by requiring Auth
+const requireAuth = require("../middleware/requireAuth");
+router.use(requireAuth);
+
 const {
   getWorkouts,
   getWorkout,
