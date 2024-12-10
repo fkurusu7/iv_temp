@@ -1,0 +1,104 @@
+:root {
+  --clr-bg-dark-1: #252525;
+  --clr-bg-dark-2: #3a3a3a;
+  --clr-bg-dark-3: #414141;
+  --clr-bg-light-1: #f7f7f7;
+  --clr-bg-light-2: #e8e8e8;
+  --clr-bg-light-3: #d3d3d3;
+
+  --clr-primary: #17ddc6;
+  --clr-secondary: #17ddc6de;
+}
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+body {
+  background-color: var(--clr-bg-dark-1);
+  color: var(--clr-primary);
+  font-size: 2rem;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 100rem;
+  border: 1px dashed var(--clr-secondary);
+  height: 100vh;
+  padding: 5rem 10rem;
+}
+
+.container h1 {
+  text-align: center;
+  margin-bottom: 7rem;
+}
+.dynamic-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.dynamic-wrapper .dynamic-content {
+  list-style: none;
+  text-align: center;
+  border: 2px solid var(--clr-bg-dark-3);
+  border-radius: 1rem;
+
+  min-width: 50rem;
+  padding: 3rem;
+}
+.dynamic-wrapper .dynamic-content h2 {
+  margin-bottom: 2rem;
+}
+.dynamic-wrapper ul {
+  list-style: none;
+}
+.dynamic-wrapper ul li {
+  color: var(--clr-bg-light-1);
+  border-bottom: 0.04rem solid var(--clr-secondary);
+  margin-bottom: 1rem;
+  padding: 0.5rem 4rem;
+  transition: all 0.3s ease-out;
+}
+.dynamic-wrapper ul li:hover {
+  background-color: var(--clr-bg-dark-2);
+  border-bottom-color: var(--clr-primary);
+  border-radius: 0.3rem;
+  color: var(--clr-bg-light-3);
+}
+
+.dynamic-wrapper .buttons-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.dynamic-wrapper .buttons-wrapper .btn {
+  outline: 1px solid transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: var(--clr-bg-dark-3);
+  color: var(--clr-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  height: 4rem;
+  padding: 0.3rem 0.5rem;
+  width: 7rem;
+  transition: all 0.3s ease-out;
+}
+
+.dynamic-wrapper .buttons-wrapper .btn:hover {
+  color: var(--clr-secondary);
+  outline: 1px solid var(--clr-secondary);
+}
