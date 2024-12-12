@@ -21,17 +21,17 @@ function Signup() {
     try {
       setErrorMessage(null);
       setIsLoading(true);
-      const res = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const jsonData = await res.json();
+      const jsonData = await response.json();
       console.log(jsonData);
-      if (!res.ok) {
+      if (!response.ok) {
         setErrorMessage(jsonData.message);
       }
-      if (res.ok) {
+      if (response.ok) {
         navigate("/signin");
       }
     } catch (error) {
