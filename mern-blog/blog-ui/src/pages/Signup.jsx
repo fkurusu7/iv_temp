@@ -1,6 +1,7 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import OAuth from "../components/OAuth";
 
 function Signup() {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ function Signup() {
                   "Sign up"
                 )}
               </Button>
+              <OAuth />
             </div>
             {errorMessage && (
               <Alert className="mt-5" color="failure">

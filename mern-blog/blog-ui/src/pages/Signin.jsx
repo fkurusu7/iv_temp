@@ -1,12 +1,18 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { signinStart, signinSuccess, signinFailure } from "../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import OAuth from "../components/OAuth";
 
 function Signin() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const { isLoading, error: errorMessage } = useSelector((state) => state.user);
 
   const handleChange = (ev) => {
     setFormData({ ...formData, [ev.target.id]: ev.target.value.trim() });
@@ -15,29 +21,30 @@ function Signin() {
   const handleSubmit = async (ev) => {
     ev.preventDefault();
     if (!formData.email || !formData.password) {
-      setErrorMessage("Please fill out all fields.");
+      // setErrorMessage("Please fill out all fields.");
+      dispatch(signinFailure("Please fill out all fields."));
     }
 
     try {
-      setErrorMessage(null);
-      setIsLoading(true);
+      dispatch(signinStart());
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const jsonData = await response.json();
-      console.log(jsonData);
+
       if (!response.ok) {
-        setErrorMessage(jsonData.message);
+        // setErrorMessage(jsonData.message);
+        dispatch(signinFailure(jsonData.message));
       }
       if (response.ok) {
+        dispatch(signinSuccess(jsonData));
         navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
+      dispatch(signinFailure(error.message));
+      // setErrorMessage(error.message);
     }
   };
 
@@ -93,6 +100,7 @@ function Signin() {
                   "Sign in"
                 )}
               </Button>
+              <OAuth />
             </div>
             {errorMessage && (
               <Alert className="mt-5" color="failure">
