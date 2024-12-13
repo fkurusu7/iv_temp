@@ -6,12 +6,15 @@ import { PersistGate } from "redux-persist/integration/react";
 
 import "./index.css";
 import App from "./App.jsx";
+import ThemeProvider from "./components/ThemeProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <PersistGate persistor={persistor}>
       <Provider store={store}>
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </Provider>
     </PersistGate>
   </StrictMode>
