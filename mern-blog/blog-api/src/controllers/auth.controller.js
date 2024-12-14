@@ -51,7 +51,7 @@ export const signin = async (req, res, next) => {
     res
       .status(200)
       .cookie("user_token", token, { httpOnly: true })
-      .json({ user: { email: user.email, name: user.name } });
+      .json({ user: { id: user._id, email: user.email, name: user.name } });
   } catch (error) {
     next(error);
   }
