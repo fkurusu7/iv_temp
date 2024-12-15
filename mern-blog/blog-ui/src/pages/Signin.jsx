@@ -33,7 +33,7 @@ function Signin() {
         body: JSON.stringify(formData),
       });
       const jsonData = await response.json();
-
+      console.log("SIGNIN", jsonData);
       if (!response.ok) {
         // setErrorMessage(jsonData.message);
         dispatch(signinFailure(jsonData.message));

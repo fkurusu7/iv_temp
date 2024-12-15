@@ -45,13 +45,24 @@ export const signin = async (req, res, next) => {
       return next(errorHAndler(404, "Invalid Credentials"));
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
     res
       .status(200)
       .cookie("user_token", token, { httpOnly: true })
-      .json({ user: { id: user._id, email: user.email, name: user.name } });
+      .json({
+        user: {
+          id: user._id,
+          isAdmin: user.isAdmin,
+          email: user.email,
+          name: user.name,
+        },
+      });
   } catch (error) {
     next(error);
   }
@@ -63,11 +74,21 @@ export const google = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET
+      );
       res
         .status(200)
         .cookie("user_token", token, { httpOnly: true })
-        .json({ user: { email: user.email, name: user.name } });
+        .json({
+          user: {
+            id: user._id,
+            isAdmin: user.isAdmin,
+            email: user.email,
+            name: user.name,
+          },
+        });
     } else {
       const password =
         Math.random().toString(36).slice(-8) +
@@ -83,7 +104,10 @@ export const google = async (req, res, next) => {
       });
       await newUser.save();
 
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        process.env.JWT_SECRET
+      );
       res
         .status(200)
         .cookie("user_token", token, { httpOnly: true })

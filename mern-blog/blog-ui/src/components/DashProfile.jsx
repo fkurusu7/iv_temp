@@ -12,6 +12,7 @@ import {
 } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 function DashProfile() {
   const { currentUser } = useSelector((state) => state.user);
@@ -106,6 +107,7 @@ function DashProfile() {
     }
   };
 
+  console.log(currentUser);
   return (
     <div className="w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
@@ -158,6 +160,14 @@ function DashProfile() {
         >
           {isLoading ? <Spinner size="sm" /> : "Update"}
         </Button>
+
+        {currentUser.user.isAdmin && (
+          <Link to={"/create-post"}>
+            <Button type="button" gradientDuoTone="purpleToBlue" outline>
+              Create Post
+            </Button>
+          </Link>
+        )}
       </form>
       {errorMessage && <div>{errorMessage}</div>}
       <div className="text-red-500 flex justify-between mt-5">
