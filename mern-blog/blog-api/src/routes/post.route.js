@@ -1,12 +1,10 @@
 import express from "express";
 import { verifyToken } from "../utils/verifyUser.js";
-import { create } from "../controllers/post.controller.js";
+import { create, getPosts } from "../controllers/post.controller.js";
 
 const router = express.Router();
 
-router.get("/test", (req, res) => {
-  res.json(200).json({ message: "fkjndfjkndfkjnfdkj" });
-});
+router.get("/getPosts", getPosts);
 router.post("/create", verifyToken, create);
 
 export default router;
