@@ -11,6 +11,7 @@ export const verifyToken = (req, res, next) => {
     if (err) {
       return next(errorHAndler(401, "Unauthorized"));
     }
+    console.log("VERIFY token: ", user);
     req.user = user;
     next();
   });

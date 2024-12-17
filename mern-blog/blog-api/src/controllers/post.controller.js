@@ -7,6 +7,7 @@ export const getPosts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.order === "asc" ? 1 : -1;
     const posts = await Post.find({
+      ...(req.query.postId && { _id: req.query.postId }),
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
       ...(req.query.slug && { slug: req.query.slug }),
@@ -72,6 +73,43 @@ export const create = async (req, res, next) => {
   try {
     const savedPost = await post.save();
     res.status(201).json(savedPost);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const remove = async (req, res, next) => {
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(errorHAndler(403, "You are not allowed to delete this post"));
+  }
+
+  try {
+    await Post.findByIdAndDelete(req.params.postId);
+    res.status(200).json({ message: "Post has been deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const update = async (req, res, next) => {
+  console.log("REQ", req.user, req.params);
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(errorHAndler(403, "You are not allowed to update this post"));
+  }
+
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.postId,
+      {
+        $set: {
+          title: req.body.title,
+          content: req.body.content,
+          category: req.body.category,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedPost);
   } catch (error) {
     next(error);
   }
