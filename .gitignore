@@ -2,3 +2,7 @@
 /ninjanet_mern/workout_api/node_modules
 /mern-blog/blog-api/node_modules
 /mern-blog/blog-api/.env
+/mern-blog/blog-ui/node_modules
+/mern-blog-modern/blog-ui/node_modules
+/mern-blog-modern/blog-api/node_modules
+/mern-blog-modern/blog-api/.env
