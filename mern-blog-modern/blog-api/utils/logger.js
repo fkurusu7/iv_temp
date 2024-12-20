@@ -6,6 +6,7 @@ morgan.token("body", (req) => {
   if (req.body.hasOwnProperty("password")) {
     const { password, ...rest } = req.body;
     req.body = rest;
+    req.body.password = "********";
   }
   return JSON.stringify(req.body);
 });
@@ -14,7 +15,7 @@ morgan.token("resBody", (req, res) => res.__body);
 export const logger = {
   success: (msg) => console.log(chalk.green("✅"), chalk.bold.cyan(msg)),
   error: (msg, err) =>
-    console.error(chalk.red("❌"), chalk.bold.red(msg), chalk.red(err || "")),
+    console.log(chalk.red("❌"), chalk.bold.red(msg), chalk.red(err || "")),
   info: (msg) => console.log(chalk.blue("💭"), chalk.bold.blue(msg)),
   server: (port) => {
     console.log("\n" + chalk.bold.yellow("🚀 Server Status:"));
