@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
 import AnimationWrapper from "../common/page-animation";
+import {
+  signinFailure,
+  signinStart,
+  signinSuccess,
+} from "../redux/userAuthSlice";
 
 // regex for email
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -17,8 +23,14 @@ function UserAuthForm({ type }) {
     password: "",
     ...(type !== "signin" && { fullname: "" }),
   });
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Redux Persistent data
+  const {
+    currentUser,
+    isLoading,
+    error: errorMessage,
+  } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const handleChange = (ev) => {
     const { value, id } = ev.target;
@@ -42,26 +54,30 @@ function UserAuthForm({ type }) {
     }
 
     try {
-      setErrorMessage(null);
-      setIsLoading(true);
-      const response = await fetch("/api/auth/signin", {
+      dispatch(signinStart());
+      const path = type === "signin" ? "signin" : "signup";
+      const response = await fetch(`/api/auth/${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const jsonData = await response.json();
-
+      console.log(jsonData);
       if (response.ok) {
         // navigate to home page
-        navigate("/");
+        if (type === "signin") {
+          dispatch(signinSuccess(jsonData));
+          navigate("/");
+        } else {
+          navigate("/signin");
+        }
       } else {
-        setErrorMessage(jsonData.message);
+        console.log(jsonData.message);
+        dispatch(signinFailure(jsonData.message));
       }
     } catch (error) {
       console.log("ERROR", error.message);
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
+      dispatch(signinFailure(error.message));
     }
   };
 
