@@ -5,7 +5,7 @@ import storage from "redux-persist/lib/storage";
 
 // Set persist config for userAuth Slice
 const userPersistConfig = {
-  key: "user",
+  key: "userAuth",
   storage,
   version: 1,
   // whitelist specific fields to persist. Only persist currentUser, not loading and error states
