@@ -1,10 +1,29 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from "../imgs/logo.png";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { signoutSuccess } from "../redux/userAuthSlice";
 
 function Navbar() {
   const [searchBoxVisibiity, setSearchBoxVisibiity] = useState(false);
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
+  const handleSignout = async () => {
+    try {
+      const response = await fetch("/api/auth/signout", {
+        method: "POST",
+      });
+      const jsonData = await response.json();
+      if (response.ok) {
+        dispatch(signoutSuccess());
+        navigate("/");
+      } else console.log(jsonData.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <nav className="navbar">
@@ -35,16 +54,26 @@ function Navbar() {
             <i className="fi fi-rr-search text-xl"></i>
           </button>
 
-          <Link to={"/editor"} className="hidden md:flex gap-2 link">
-            <i className="fi fi-rr-file-edit"></i>
-            <p>Write</p>
-          </Link>
-          <Link className="btn-dark py-2" to={"/signin"}>
-            Sign in
-          </Link>
-          <Link className="btn-light py-2 hidden md:block" to={"/signup"}>
-            Sign up
-          </Link>
+          {currentUser ? (
+            <>
+              <Link to={"/editor"} className="hidden md:flex gap-2 link">
+                <i className="fi fi-rr-file-edit"></i>
+                <p>Write</p>
+              </Link>
+              <button className="btn-light py-2" onClick={handleSignout}>
+                <i className="fi fi-rr-sign-out-alt"></i>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link className="btn-dark py-2" to={"/signin"}>
+                Sign in
+              </Link>
+              <Link className="btn-light py-2 hidden md:block" to={"/signup"}>
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
       <Outlet />

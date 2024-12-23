@@ -134,7 +134,7 @@ export const signin = async (req, res, next) => {
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     return res
       .status(200)
-      .cookie("user_token", accessToken, {
+      .cookie(process.env.USER_COOKIE, accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -143,5 +143,21 @@ export const signin = async (req, res, next) => {
       .json(formatDataToSend(user));
   } catch (error) {
     return next(error);
+  }
+};
+
+export const signout = async (req, res, next) => {
+  logger.info("REQ B: " + req.body);
+  logger.info("REQ C: " + req.cookie);
+  logger.info("Signing out");
+  try {
+    res.clearCookie(process.env.USER_COOKIE).status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "signed out successfully",
+    });
+  } catch (error) {
+    logger.error("Error Signing out", error);
+    next(error);
   }
 };

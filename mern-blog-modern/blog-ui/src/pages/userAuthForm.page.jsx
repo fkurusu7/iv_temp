@@ -9,6 +9,9 @@ import {
   signinFailure,
   signinStart,
   signinSuccess,
+  signupFailure,
+  signupStart,
+  signupSuccess,
 } from "../redux/userAuthSlice";
 
 // regex for email
@@ -54,7 +57,8 @@ function UserAuthForm({ type }) {
     }
 
     try {
-      dispatch(signinStart());
+      if (type === "signin") dispatch(signinStart());
+      else dispatch(signupStart());
       const path = type === "signin" ? "signin" : "signup";
       const response = await fetch(`/api/auth/${path}`, {
         method: "POST",
@@ -62,22 +66,29 @@ function UserAuthForm({ type }) {
         body: JSON.stringify(formData),
       });
       const jsonData = await response.json();
-      console.log(jsonData);
       if (response.ok) {
         // navigate to home page
         if (type === "signin") {
           dispatch(signinSuccess(jsonData));
           navigate("/");
         } else {
+          // Signup form
+          dispatch(signupSuccess());
+          setFormData({
+            email: "",
+            password: "",
+          });
           navigate("/signin");
         }
       } else {
         console.log(jsonData.message);
-        dispatch(signinFailure(jsonData.message));
+        if (type === "signin") dispatch(signinFailure(jsonData.message));
+        else dispatch(signupFailure(jsonData.message));
       }
     } catch (error) {
       console.log("ERROR", error.message);
-      dispatch(signinFailure(error.message));
+      if (type === "signin") dispatch(signinFailure(error.message));
+      else dispatch(signupFailure(error.message));
     }
   };
 

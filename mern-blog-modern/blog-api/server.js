@@ -1,9 +1,12 @@
-import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
+
+import express from "express";
+import mongoose from "mongoose";
+
 import { logger } from "./utils/logger.js";
 import authRouter from "./routes/auth.route.js";
+import postsRouter from "./routes/posts.route.js";
 
 // random string from node:
 // require("crypto").randomBytes(64).toString("hex")
@@ -22,6 +25,7 @@ appServer.use(logger.requestLogger);
 
 // ROUTES
 appServer.use("/api/auth", authRouter);
+appServer.use("/api/posts", postsRouter);
 
 // handles errors
 appServer.use((err, req, res, next) => {
