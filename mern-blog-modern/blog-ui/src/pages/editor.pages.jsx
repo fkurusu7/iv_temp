@@ -19,6 +19,7 @@ import logo from "./../imgs/logo.png";
 import defaultBanner from "./../imgs/blog-banner.png";
 import AnimationWrapper from "../common/page-animation";
 import { uploadImageToAWS } from "../common/aws";
+import Tag from "../components/tags.component";
 
 const uploadImageByUrl = async (url) => {
   console.log("URL image", url);
@@ -160,23 +161,40 @@ const EDITOR_JS_TOOLS = {
   },
 };
 
+const onSubmit = () => {
+  /* TODO: 
+    - validate content
+    - let loadingTost = toast.loading("Publishing...")
+      - once published toast.dismiss(loadingToast) and toast.success
+    - this function receves the event in order to add disable clasname to the button to avoid double publishing 
+    - fetch post post to createPost backend route with the token from cookie
+
+    - redirect user to / after 500ms
+
+    -*-*- Handle Draft posts, similar to publishing
+
+   */
+};
+
 function Editor() {
   const editorInstanceRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   // const [uploadImgError, setUploadImgError] = useState(null);
 
   // TODO: Add tag component, to add new tags use an input to get the tags separated by comas, add a multi-select element which loads the persisted tags and could be selected for the current post, for new tags, these will be saved after the post is published.
+  // TODO: add description and make it equal or less than 200 characters
 
   const postInitialState = {
     title: "",
     banner: "",
     content: [],
     tags: [],
-    des: "",
+    description: "",
     author: { personal_info: {} },
   };
   const [editorFormData, setEditorFormData] = useState(postInitialState);
 
+  // EDITOR Setup
   useEffect(() => {
     let editor;
 
@@ -225,6 +243,8 @@ function Editor() {
   }, []);
 
   console.log(editorFormData);
+
+  // Upload main Post Image
   const handleBannerUpload = async (ev) => {
     const img = ev.target.files[0];
     if (!img) return;
@@ -253,6 +273,7 @@ function Editor() {
     }
   };
 
+  // Do not allow Enter key to work
   const handleTitleKeyDown = (ev) => {
     // Avoid pressing Enter key in text area box
     if (ev.keyCode === 13) {
@@ -260,6 +281,7 @@ function Editor() {
     }
   };
 
+  // Increase text area height
   const handleTitleChange = (ev) => {
     const input = ev.target;
     const { value, id } = input;
@@ -267,6 +289,62 @@ function Editor() {
     input.style.height = input.scrollHeight + "px";
     setEditorFormData((prevData) => ({ ...prevData, [id]: value }));
   };
+
+  // Add Tags to the EditorForm by pressing Enter Key or the Coma symbol
+  const handleAddTag = (ev) => {
+    if (
+      ev.target.value.trim().length &&
+      (ev.keyCode === 13 || ev.keyCode === 188)
+    ) {
+      ev.preventDefault();
+
+      const tagName = ev.target.value.trim().toLowerCase();
+
+      if (tagName.length > 10) {
+        toast.error(
+          `Tag name (${tagName}) must have a length of 10 characters`
+        );
+        // Clear input
+        ev.target.value = "";
+        return;
+      }
+      // check if tag already present in tags array
+      if (!editorFormData.tags.includes(tagName)) {
+        setEditorFormData((prev) => ({
+          ...prev,
+          tags: [...prev.tags, tagName],
+        }));
+
+        // Clear input
+        ev.target.value = "";
+      }
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setEditorFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  const handleTagEdit = (oldTag, newTag) => {
+    if (!newTag.length) {
+      toast.error("Add a proper edited tag");
+      setEditorFormData((prev) => ({
+        ...prev,
+      }));
+    } else {
+      setEditorFormData((prev) => ({
+        ...prev,
+        tags: prev.tags.map((tag) =>
+          tag === oldTag ? newTag.trim().toLowerCase() : tag
+        ),
+      }));
+    }
+  };
+
+  console.log(editorFormData);
 
   return (
     <>
@@ -326,8 +404,26 @@ function Editor() {
             value={editorFormData.title}
             rows="1"
           ></textarea>
-          <hr className="w-full opacity-10 my-5" />
           {/* TAGS */}
+          <div className="realtive input-box px-2 py-2 mt-2">
+            <input
+              type="text"
+              placeholder="Add tags separated by comas..."
+              className="sticky input-box bg-white top-0 left-0 pl-4 mb-3 focus:bg-white"
+              onKeyDown={handleAddTag}
+            />
+            {editorFormData.tags.map((tag, i) => {
+              return (
+                <Tag
+                  tagName={tag}
+                  key={tag + i}
+                  handleRemovetag={handleRemoveTag}
+                  handleTagEdit={handleTagEdit}
+                />
+              );
+            })}
+          </div>
+          <hr className="w-full opacity-10 my-5" />
           {/* CONTENT */}
           {/* EDITOR Area */}
           <div id="textEditor" className="max-w-full"></div>

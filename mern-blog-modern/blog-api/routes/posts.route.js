@@ -1,11 +1,15 @@
 import express from "express";
+const router = express.Router();
+
 import {
   getImageUploadUrl,
   fetchImageByUrl,
+  createPost,
 } from "../controllers/posts.controller.js";
-const router = express.Router();
+import { verifyToken } from "../utils/verifyToken.js";
 
 router.get("/getImageUploadUrl", getImageUploadUrl);
 router.get("/fetchImageByUrl", fetchImageByUrl);
+router.post("/create", verifyToken, createPost);
 
 export default router;
