@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import Tag from "./Tag";
+import Tag from "./Tag.js";
+import { generateSlug } from "../utils/slugify.js";
 
 const postSchema = mongoose.Schema(
   {
@@ -10,7 +11,7 @@ const postSchema = mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
+      // required: true,
       unique: true,
       lowercase: true,
     },
@@ -35,12 +36,10 @@ const postSchema = mongoose.Schema(
       required: true,
       default: [],
     },
-    tags: [
-      {
-        type: [Schema.Types.ObjectId],
-        ref: "tag",
-      },
-    ],
+    tags: {
+      type: [Schema.Types.ObjectId],
+      ref: "tag",
+    },
     activity: {
       total_likes: {
         type: Number,
@@ -79,6 +78,14 @@ const postSchema = mongoose.Schema(
       type: [Schema.Types.ObjectId],
       ref: "comments",
     },
+    version: { type: Number, default: 1 },
+    history: [
+      {
+        content: Object,
+        updatedAt: Date,
+        version: Number,
+      },
+    ],
   },
   {
     timestamps: true,
@@ -90,11 +97,25 @@ postSchema.index({ userId: 1, createdAt: -1 });
 postSchema.index({ slug: 1 }, { unique: true });
 postSchema.index({ tags: 1, createdAt: -1 });
 
+// When updating posts, maintain history
+postSchema.pre("save", function (next) {
+  if (this.isModified("content")) {
+    this.history.push({
+      content: this.content,
+      updatedAt: new Date(),
+      version: this.version,
+    });
+    this.version += 1;
+  }
+  next();
+});
+
 // Middleware to update tag postCount when a post is saved or removed
 postSchema.pre("save", async function (next) {
   if (this.isModified("tags")) {
-    const oldTags = this._oldTags || [];
-    const newTags = this.tags || [];
+    // Ensure oldTags is an array of strings/ObjectIds, not nested array
+    const oldTags = (this._oldTags || []).flat();
+    const newTags = (this.tags || []).flat();
 
     // Decrease count for removed tags
     const removedTags = oldTags.filter((tag) => !newTags.includes(tag));
@@ -151,14 +172,7 @@ postSchema.methods.generateUniqueSlug = async function () {
 // Update the pre-save middleware to use the unique slug generator
 postSchema.pre("save", async function (next) {
   if (this.isModified("title")) {
-    this.slug = this.title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "") // Remove non-word chars (except spaces and dashes)
-      .replace(/\s+/g, "-") // Replace spaces with dashes
-      .replace(/-+/g, "-") // Replace multiple dashes with single dash
-      .replace(/^-+|-+$/g, ""); // Remove leading/trailing dashes
-
+    this.slug = generateSlug(this.title);
     await this.generateUniqueSlug();
   }
   next();

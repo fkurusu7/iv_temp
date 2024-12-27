@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from "express";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import { logger } from "./utils/logger.js";
 import authRouter from "./routes/auth.route.js";
@@ -18,6 +19,7 @@ mongoose
 
 const appServer = express();
 appServer.use(express.json());
+appServer.use(cookieParser());
 // Use the response capture middleware first
 appServer.use(logger.responseCapture);
 // Use the request logger middleware

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import { debounce } from "lodash";
 
@@ -21,8 +21,61 @@ import AnimationWrapper from "../common/page-animation";
 import { uploadImageToAWS } from "../common/aws";
 import Tag from "../components/tags.component";
 
+// Constants
+const MAX_TITLE_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 200;
+const MAX_TAGS = 5;
+const MAX_TAG_LENGTH = 10;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+// Validation schemas
+const validateForm = (formData) => {
+  const errors = {};
+
+  if (!formData.title.trim()) {
+    errors.title = "Title is required";
+  } else if (formData.title.length > MAX_TITLE_LENGTH) {
+    errors.title = `Title must be less than ${MAX_TITLE_LENGTH} characters`;
+  }
+
+  if (!formData.description.trim()) {
+    errors.description = "Description is required";
+  } else if (formData.description.length > MAX_DESCRIPTION_LENGTH) {
+    errors.description = `Description must be less than ${MAX_DESCRIPTION_LENGTH} characters`;
+  }
+
+  if (!formData.banner) {
+    errors.banner = "Banner image is required";
+  }
+
+  if (formData.tags.length === 0) {
+    errors.tags = "At least one tag is required";
+  } else if (formData.tags.length > MAX_TAGS) {
+    errors.tags = `Maximum ${MAX_TAGS} tags allowed`;
+  }
+
+  if (!formData.content || formData.content.blocks?.length === 0) {
+    errors.content = "Content is required";
+  }
+
+  return errors;
+};
+
+// Image upload helpers
+const validateImage = (file) => {
+  if (!file) return "No file selected";
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return "Invalid file type. Only JPG and PNG are allowed";
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    return "File size too large. Maximum size is 5MB";
+  }
+  return null;
+};
+
+/* TODO: Work on this once the blog is done
 const uploadImageByUrl = async (url) => {
-  console.log("URL image", url);
   try {
     const response = await fetch("/api/posts/fetchImageUrl", {
       method: "POST",
@@ -67,14 +120,18 @@ const uploadImageByUrl = async (url) => {
     };
   }
 };
-
+*/
 const uploadImageByFile = async (img) => {
   try {
+    const validationError = validateImage(img);
+    if (validationError) {
+      throw new Error(validationError);
+    }
+
     const uploadedImageURL = await uploadImageToAWS(img);
     return { success: 1, file: { url: uploadedImageURL } };
   } catch (error) {
-    console.log(error.message);
-    console.log(error);
+    console.error("Upload Image Error: ", error);
     return { success: 0, error: "Failed to upload image" };
   }
 };
@@ -98,42 +155,17 @@ const EDITOR_JS_TOOLS = {
       defaultStyle: "unordered",
     },
   },
-  // image: {
-  //   class: Image,
-  //   config: {
-  //     // endpoints: {
-  //     //   byFile: "your-backend-upload-endpoint", // Replace with your upload endpoint
-  //     // },
-  //     uploader: {
-  //       uploadByUrl: uploadImageByUrl,
-  //       uploadByFile: uploadImageByFile,
-  //     },
-  //     actions: [
-  //       {
-  //         name: "withUrl",
-  //         icon: '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M10.043 8.265l3.183-3.183h-2.924a4.29 4.29 0 0 0-4.285 4.285v1.06h1.06v-1.06a3.23 3.23 0 0 1 3.225-3.225h2.924l-3.183 3.183z"/><path d="M10.043 11.735l3.183 3.183h-2.924a4.29 4.29 0 0 1-4.285-4.285v-1.06h1.06v1.06a3.23 3.23 0 0 0 3.225 3.225h2.924l-3.183-3.183z"/></svg>',
-  //         title: "Add image by URL",
-  //         toggle: true,
-  //       },
-  //     ],
-  //   },
-  // },
   image: {
     class: Image,
     config: {
       uploader: {
-        uploadByUrl: uploadImageByUrl,
+        // uploadByUrl: uploadImageByUrl,
         uploadByFile: uploadImageByFile,
       },
     },
   },
-  code: Code,
-  linkTool: {
-    class: LinkTool,
-    config: {
-      endpoint: "your-backend-link-endpoint", // Replace with your link endpoint
-    },
-  },
+  code: { class: Code, inlineToolbar: true },
+  linkTool: LinkTool,
   quote: {
     class: Quote,
     inlineToolbar: true,
@@ -161,28 +193,13 @@ const EDITOR_JS_TOOLS = {
   },
 };
 
-const onSubmit = () => {
-  /* TODO: 
-    - validate content
-    - let loadingTost = toast.loading("Publishing...")
-      - once published toast.dismiss(loadingToast) and toast.success
-    - this function receves the event in order to add disable clasname to the button to avoid double publishing 
-    - fetch post post to createPost backend route with the token from cookie
-
-    - redirect user to / after 500ms
-
-    -*-*- Handle Draft posts, similar to publishing
-
-   */
-};
-
 function Editor() {
   const editorInstanceRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // const [uploadImgError, setUploadImgError] = useState(null);
 
-  // TODO: Add tag component, to add new tags use an input to get the tags separated by comas, add a multi-select element which loads the persisted tags and could be selected for the current post, for new tags, these will be saved after the post is published.
-  // TODO: add description and make it equal or less than 200 characters
+  const navigate = useNavigate();
 
   const postInitialState = {
     title: "",
@@ -190,7 +207,6 @@ function Editor() {
     content: [],
     tags: [],
     description: "",
-    author: { personal_info: {} },
   };
   const [editorFormData, setEditorFormData] = useState(postInitialState);
 
@@ -242,8 +258,6 @@ function Editor() {
     };
   }, []);
 
-  console.log(editorFormData);
-
   // Upload main Post Image
   const handleBannerUpload = async (ev) => {
     const img = ev.target.files[0];
@@ -282,7 +296,7 @@ function Editor() {
   };
 
   // Increase text area height
-  const handleTitleChange = (ev) => {
+  const handleTextAreaChange = (ev) => {
     const input = ev.target;
     const { value, id } = input;
     input.style.height = "auto";
@@ -290,7 +304,7 @@ function Editor() {
     setEditorFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  // Add Tags to the EditorForm by pressing Enter Key or the Coma symbol
+  // Add Tags to the EditorForm by pressing Enter Key or the Coma key
   const handleAddTag = (ev) => {
     if (
       ev.target.value.trim().length &&
@@ -344,6 +358,43 @@ function Editor() {
     }
   };
 
+  const handleSubmitPublish = async (ev) => {
+    console.log("SUBMIT: ", editorFormData);
+    // - validate content OR editor is ready
+
+    let loadingToast = toast.loading("Publishing...");
+    try {
+      //  Handle Draft posts, similar to publishing
+      setIsLoading(true);
+      const response = await fetch("/api/posts/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editorFormData),
+      });
+      const jsonResponse = await response.json();
+      if (response.ok) {
+        toast.dismiss(loadingToast);
+
+        toast.success("Post Published");
+        navigate("/");
+      } else {
+        toast.dismiss(loadingToast);
+
+        toast.error("Error Post");
+        return;
+      }
+    } catch (error) {
+      setIsLoading(false);
+      toast.dismiss(loadingToast);
+      toast.error(`${error.message}`);
+      console.log("EDITOR component", error);
+      // What to do
+      return;
+    } finally {
+      setIsLoading(true);
+    }
+  };
+
   console.log(editorFormData);
 
   return (
@@ -357,7 +408,13 @@ function Editor() {
           {editorFormData.title ? editorFormData.title : "New Post"}
         </p>
         <div className="flex gap-4 ml-auto">
-          <button className="btn-dark py-2">Publish</button>
+          <button
+            className="btn-dark py-2"
+            onClick={handleSubmitPublish}
+            disabled={isLoading}
+          >
+            Publish
+          </button>
           <button className="btn-light py-2">Save draft</button>
         </div>
       </nav>
@@ -400,7 +457,7 @@ function Editor() {
             // className="text-4xl border border-grey px-2 rounded font-medium w-full h-[68px] outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
             className="text-2xl border border-grey p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none mt-10 placeholder:opacity-40"
             onKeyDown={handleTitleKeyDown}
-            onChange={handleTitleChange}
+            onChange={handleTextAreaChange}
             value={editorFormData.title}
             rows="1"
           ></textarea>
@@ -423,6 +480,17 @@ function Editor() {
               );
             })}
           </div>
+          {/* DESCRIPTION */}
+          <textarea
+            name="description"
+            id="description"
+            placeholder="Write a short (200 chars) Description for the Post"
+            // className="text-4xl border border-grey px-2 rounded font-medium w-full h-[68px] outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
+            className="text-2xl border border-grey p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none mt-10 placeholder:opacity-40"
+            onChange={handleTextAreaChange}
+            value={editorFormData.description}
+            rows="1"
+          ></textarea>
           <hr className="w-full opacity-10 my-5" />
           {/* CONTENT */}
           {/* EDITOR Area */}

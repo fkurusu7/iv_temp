@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { generateSlug } from "../utils/slugify.js";
 
 const tagSchema = mongoose.Schema(
   {
@@ -33,14 +34,9 @@ tagSchema.index({ name: 1 });
 tagSchema.index({ slug: 1 });
 
 // PRE-save middleware to generate slug from name
-tagSchema.pre("save", (next) => {
+tagSchema.pre("save", function (next) {
   if (this.isModified("name")) {
-    this.slug = this.name
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove non-word chars (except spaces and dashes)
-      .replace(/\s+/g, "-") // Replace spaces with dashes
-      .replace(/-+/g, "-") // Replace multiple dashes with single dash
-      .replace(/^-+|-+$/g, ""); // Remove leading/trailing dashes
+    this.slug = generateSlug(this.name);
   }
   next();
 });
