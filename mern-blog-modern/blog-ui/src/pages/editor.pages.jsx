@@ -195,12 +195,6 @@ const EDITOR_JS_TOOLS = {
 
 function Editor() {
   const editorInstanceRef = useRef(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  // const [uploadImgError, setUploadImgError] = useState(null);
-
-  const navigate = useNavigate();
-
   const postInitialState = {
     title: "",
     banner: "",
@@ -209,8 +203,13 @@ function Editor() {
     description: "",
   };
   const [editorFormData, setEditorFormData] = useState(postInitialState);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
-  // EDITOR Setup
+  const navigate = useNavigate();
+
+  // EDITOR initialization
   useEffect(() => {
     let editor;
 
@@ -219,26 +218,27 @@ function Editor() {
         const savedData = await editor.save();
         setEditorFormData((prev) => ({ ...prev, content: savedData }));
       } catch (error) {
-        console.error("Saving failed...", error);
+        console.error("Editor save failed: ", error);
+        toast.error("Failed to save Post Content");
       }
-    }, 500);
+    }, 700);
 
     const initEditor = async () => {
       if (!editorInstanceRef.current) {
         try {
-          // const EditorJS = await import("@editorjs/editor-js");
           editor = new EditorJS({
             holder: "textEditor",
             tools: EDITOR_JS_TOOLS,
             data: editorFormData.content,
-            placeholder: "Post Content",
+            placeholder: "Start writing your post...",
             onChange: debouncedOnChange,
             onReady: () => {
               editorInstanceRef.current = editor;
             },
           });
         } catch (error) {
-          console.error("Editor initialization failed:", error);
+          console.error("Editor initialization failed: ", error);
+          toast.error("Failed to initialize editor. Please reload page");
         }
       }
     };
@@ -258,22 +258,25 @@ function Editor() {
     };
   }, []);
 
-  // Upload main Post Image
+  // Upload main (Banner) Post Image
   const handleBannerUpload = async (ev) => {
     const img = ev.target.files[0];
     if (!img) return;
+    const validationError = validateImage(img);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
 
-    let loadingToast = toast.loading("Uploading...");
-
-    // setUploadImgError(null);
+    let loadingToast = toast.loading("Uploading Image...");
     setIsUploadingImage(true);
 
     try {
       const imageUploadedUrl = await uploadImageToAWS(img);
-      setEditorFormData({
-        ...editorFormData,
-        [ev.target.id]: imageUploadedUrl,
-      });
+      setEditorFormData((prev) => ({
+        ...prev,
+        banner: imageUploadedUrl,
+      }));
       toast.success("Image uploaded successfully!", {
         id: loadingToast,
       });
@@ -281,7 +284,6 @@ function Editor() {
       toast.error(error.message || "Failed to upload image", {
         id: loadingToast,
       });
-      setUploadedImage(null);
     } finally {
       setIsUploadingImage(false);
     }
@@ -297,10 +299,12 @@ function Editor() {
 
   // Increase text area height
   const handleTextAreaChange = (ev) => {
+    const { value, id } = ev.target;
     const input = ev.target;
-    const { value, id } = input;
+    // Autoresize textarea
     input.style.height = "auto";
     input.style.height = input.scrollHeight + "px";
+
     setEditorFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
@@ -311,27 +315,34 @@ function Editor() {
       (ev.keyCode === 13 || ev.keyCode === 188)
     ) {
       ev.preventDefault();
-
       const tagName = ev.target.value.trim().toLowerCase();
 
-      if (tagName.length > 10) {
-        toast.error(
-          `Tag name (${tagName}) must have a length of 10 characters`
-        );
-        // Clear input
+      if (editorFormData.tags.length >= MAX_TAGS) {
+        toast.error(`Maximum ${MAX_TAGS} tags allowed`);
         ev.target.value = "";
         return;
       }
-      // check if tag already present in tags array
-      if (!editorFormData.tags.includes(tagName)) {
-        setEditorFormData((prev) => ({
-          ...prev,
-          tags: [...prev.tags, tagName],
-        }));
 
-        // Clear input
+      if (tagName.length > MAX_TAG_LENGTH) {
+        toast.error(`Tag must be less than ${MAX_TAG_LENGTH} characters`);
         ev.target.value = "";
+        return;
       }
+
+      // check if tag already present in tags array
+      if (editorFormData.tags.includes(tagName)) {
+        toast.error("Tag already exists");
+        ev.target.value = "";
+        return;
+      }
+
+      setEditorFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, tagName],
+      }));
+      ev.target.value = "";
+      // Clear error when tags are added
+      setFormErrors((prev) => ({ ...prev, tags: "" }));
     }
   };
 
@@ -344,54 +355,56 @@ function Editor() {
 
   const handleTagEdit = (oldTag, newTag) => {
     if (!newTag.length) {
-      toast.error("Add a proper edited tag");
-      setEditorFormData((prev) => ({
-        ...prev,
-      }));
-    } else {
-      setEditorFormData((prev) => ({
-        ...prev,
-        tags: prev.tags.map((tag) =>
-          tag === oldTag ? newTag.trim().toLowerCase() : tag
-        ),
-      }));
+      toast.error("Tag cannot be empty");
+      return;
     }
+    if (newTag.length > MAX_TAG_LENGTH) {
+      toast.error(`Tag must be less than ${MAX_TAG_LENGTH} characters`);
+      return;
+    }
+    setEditorFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.map((tag) =>
+        tag === oldTag ? newTag.trim().toLowerCase() : tag
+      ),
+    }));
   };
 
   const handleSubmitPublish = async (ev) => {
-    console.log("SUBMIT: ", editorFormData);
-    // - validate content OR editor is ready
+    // Validate Editor Component Data
+    const errors = validateForm(editorFormData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.error("Please fix the errors before publishing");
+      return;
+    }
 
     let loadingToast = toast.loading("Publishing...");
+    setIsSubmitting(true);
+
     try {
-      //  Handle Draft posts, similar to publishing
-      setIsLoading(true);
+      // TODO: Handle Draft posts, similar to publishing
+
       const response = await fetch("/api/posts/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editorFormData),
       });
-      const jsonResponse = await response.json();
-      if (response.ok) {
-        toast.dismiss(loadingToast);
 
-        toast.success("Post Published");
-        navigate("/");
-      } else {
-        toast.dismiss(loadingToast);
-
-        toast.error("Error Post");
-        return;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to publish post");
       }
+
+      toast.success("Post Published successfully", { id: loadingToast });
+      navigate("/"); // TODO: start working on the Post page/component
     } catch (error) {
-      setIsLoading(false);
-      toast.dismiss(loadingToast);
-      toast.error(`${error.message}`);
-      console.log("EDITOR component", error);
-      // What to do
-      return;
+      console.log("Publish error: ", error);
+      toast.error(error.message || "Failed to publish post", {
+        id: loadingToast,
+      });
     } finally {
-      setIsLoading(true);
+      setIsSubmitting(true);
     }
   };
 
@@ -405,15 +418,15 @@ function Editor() {
           <img src={logo} alt="logo" />
         </Link>
         <p className="max-md:hidden text-black line-clamp-1 w-full">
-          {editorFormData.title ? editorFormData.title : "New Post"}
+          {editorFormData.title || "New Post"}
         </p>
         <div className="flex gap-4 ml-auto">
           <button
             className="btn-dark py-2"
             onClick={handleSubmitPublish}
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            Publish
+            {isSubmitting ? "Publishing..." : "Publish"}
           </button>
           <button className="btn-light py-2">Save draft</button>
         </div>
@@ -434,7 +447,7 @@ function Editor() {
                   src={editorFormData.banner || defaultBanner}
                   alt="banner"
                   className={`z-20 cursor-pointer ${
-                    isUploadingImage && "opacity-50"
+                    isUploadingImage ? "opacity-50" : ""
                   }`}
                 />
                 <input
@@ -447,54 +460,96 @@ function Editor() {
                 />
               </label>
             </div>
+            {formErrors.banner && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.banner}</p>
+            )}
             {/* BANNER end */}
           </div>
           {/* TITLE */}
-          <textarea
-            name="title"
-            id="title"
-            placeholder="Title Post"
-            // className="text-4xl border border-grey px-2 rounded font-medium w-full h-[68px] outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
-            className="text-2xl border border-grey p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none mt-10 placeholder:opacity-40"
-            onKeyDown={handleTitleKeyDown}
-            onChange={handleTextAreaChange}
-            value={editorFormData.title}
-            rows="1"
-          ></textarea>
+          <div className="mt-10 space-y-6">
+            <textarea
+              name="title"
+              id="title"
+              placeholder="Title Post"
+              className="text-2xl border border-grey p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none mt-10 placeholder:opacity-40"
+              onKeyDown={handleTitleKeyDown}
+              onChange={handleTextAreaChange}
+              value={editorFormData.title}
+              rows="1"
+            ></textarea>
+            {formErrors.title && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">
+              {editorFormData.title.length}/{MAX_TITLE_LENGTH}
+            </p>
+          </div>
+
           {/* TAGS */}
-          <div className="realtive input-box px-2 py-2 mt-2">
+
+          <div
+            className={`relative input-box px-2 py-2 mt-2${
+              formErrors.tags ? "border-red-500" : ""
+            }`}
+          >
             <input
               type="text"
-              placeholder="Add tags separated by comas..."
+              placeholder="Add tags (max 5 tags) by Pressing Enter or Coma Key..."
               className="sticky input-box bg-white top-0 left-0 pl-4 mb-3 focus:bg-white"
               onKeyDown={handleAddTag}
             />
-            {editorFormData.tags.map((tag, i) => {
-              return (
-                <Tag
-                  tagName={tag}
-                  key={tag + i}
-                  handleRemovetag={handleRemoveTag}
-                  handleTagEdit={handleTagEdit}
-                />
-              );
-            })}
+            <div className="flex flex-wrap gap-2">
+              {editorFormData.tags.map((tag, i) => {
+                return (
+                  <Tag
+                    tagName={tag}
+                    key={tag + i}
+                    handleRemovetag={handleRemoveTag}
+                    handleTagEdit={handleTagEdit}
+                  />
+                );
+              })}
+            </div>
+            {formErrors.tags && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.tags}</p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">
+              {editorFormData.tags.length}/{MAX_TAGS} tags used
+            </p>
           </div>
           {/* DESCRIPTION */}
-          <textarea
-            name="description"
-            id="description"
-            placeholder="Write a short (200 chars) Description for the Post"
-            // className="text-4xl border border-grey px-2 rounded font-medium w-full h-[68px] outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
-            className="text-2xl border border-grey p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none mt-10 placeholder:opacity-40"
-            onChange={handleTextAreaChange}
-            value={editorFormData.description}
-            rows="1"
-          ></textarea>
+          <div className="mt-10">
+            <textarea
+              name="description"
+              id="description"
+              placeholder={`Write a short description (max ${MAX_DESCRIPTION_LENGTH} characters)`}
+              className={`text-lg border p-4 rounded font-medium w-full h-[48px] overflow-hidden leading-none outline-none resize-none placeholder:opacity-40 ${
+                formErrors.description ? "border-red-500" : "border-grey"
+              }`}
+              onChange={handleTextAreaChange}
+              value={editorFormData.description}
+              maxLength={MAX_DESCRIPTION_LENGTH}
+              rows="1"
+            ></textarea>
+            {formErrors.description && (
+              <p className="text-red-500 text-sm mt-1">
+                {formErrors.description}
+              </p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">
+              {editorFormData.description.length}/{MAX_DESCRIPTION_LENGTH}
+            </p>
+          </div>
           <hr className="w-full opacity-10 my-5" />
           {/* CONTENT */}
           {/* EDITOR Area */}
-          <div id="textEditor" className="max-w-full"></div>
+          <div>
+            <div id="textEditor" className="max-w-full"></div>
+            {/* ERRORS */}
+            {formErrors.content && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.content}</p>
+            )}
+          </div>
         </section>
       </AnimationWrapper>
     </>
