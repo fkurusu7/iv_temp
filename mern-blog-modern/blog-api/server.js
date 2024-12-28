@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import { logger } from "./utils/logger.js";
 import authRouter from "./routes/auth.route.js";
 import postsRouter from "./routes/posts.route.js";
+import tagsRouter from "./routes/tags.route.js";
 
 // random string from node:
 // require("crypto").randomBytes(64).toString("hex")
@@ -28,6 +29,7 @@ appServer.use(logger.requestLogger);
 // ROUTES
 appServer.use("/api/auth", authRouter);
 appServer.use("/api/posts", postsRouter);
+appServer.use("/api/tags", tagsRouter);
 
 // handles errors
 appServer.use((err, req, res, next) => {

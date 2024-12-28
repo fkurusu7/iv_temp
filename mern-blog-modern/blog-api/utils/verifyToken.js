@@ -3,11 +3,7 @@ import { errorHandler } from "./error.js";
 import { logger } from "./logger.js";
 
 export const verifyToken = (req, res, next) => {
-  // get token from request cookies process.env.USER_COOKIE
-  logger.info(req);
-  logger.info("====> Cookies: " + req.cookies);
   const token = req.cookies.user_token;
-  logger.info("====> TOKEN: " + token);
 
   // validate there is a token, if not error 401 Unauthorized
   if (!token) {

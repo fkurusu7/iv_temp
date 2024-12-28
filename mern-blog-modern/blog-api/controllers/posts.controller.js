@@ -231,5 +231,3 @@ export const createPost = async (req, res, next) => {
     next(error);
   }
 };
-
-// TODO: create  tag route to fetch tags and return them to the front

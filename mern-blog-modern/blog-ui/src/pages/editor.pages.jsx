@@ -20,6 +20,7 @@ import defaultBanner from "./../imgs/blog-banner.png";
 import AnimationWrapper from "../common/page-animation";
 import { uploadImageToAWS } from "../common/aws";
 import Tag from "../components/tags.component";
+import ExistingTags from "../components/existing-tags.component";
 
 // Constants
 const MAX_TITLE_LENGTH = 100;
@@ -486,12 +487,16 @@ function Editor() {
           </div>
 
           {/* TAGS */}
-
           <div
             className={`relative input-box px-2 py-2 mt-2${
               formErrors.tags ? "border-red-500" : ""
             }`}
           >
+            {/* Existing Tags in DB */}
+            <ExistingTags
+              editorFormData={editorFormData}
+              setEditorFormData={setEditorFormData}
+            />
             <input
               type="text"
               placeholder="Add tags (max 5 tags) by Pressing Enter or Coma Key..."
