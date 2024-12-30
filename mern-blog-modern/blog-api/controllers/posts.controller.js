@@ -1,14 +1,14 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import mongoose from "mongoose";
 import { nanoid } from "nanoid";
-import { logger } from "../utils/logger.js";
 import { errorHandler } from "../utils/error.js";
+import { generateSlug } from "../utils/slugify.js";
+import { logger } from "../utils/logger.js";
 import Post from "../schemas/Post.js";
 import Tag from "../schemas/Tag.js";
 import User from "../schemas/User.js";
-import mongoose from "mongoose";
-import { generateSlug } from "../utils/slugify.js";
 
 const getS3Client = () => {
   return new S3Client({
@@ -156,7 +156,6 @@ export const createPost = async (req, res, next) => {
     // Process Tags
     const processedTags = tags.map((tag) => tag.toLowerCase().trim());
     const uniqueTags = [...new Set(processedTags)]; // Remove duplicates
-    logger.info(`TAGS: ${uniqueTags}`);
 
     // handle tags in bulk
     const tagOperations = uniqueTags.map((tagName) => ({
@@ -210,11 +209,13 @@ export const createPost = async (req, res, next) => {
 
     // Log performance metrics
     const duration = performance.now() - start;
-    logger.info("Post creation performance", {
-      duration,
-      userId: req.user.id,
-      tagsCount: tags.length,
-    });
+    logger.info(
+      `Post creation performance ${JSON.stringify({
+        duration,
+        userId: req.user.id,
+        tagsCount: tags.length,
+      })}`
+    );
 
     // Return response
     res.status(201).json({
@@ -228,6 +229,74 @@ export const createPost = async (req, res, next) => {
       userId: req.user?.id,
       title: req.body?.title,
     });
+    next(error);
+  }
+};
+
+// Dynamic funtcion to get (different) post(s). Returns an Array
+// `/api/post/getPosts?userId=${currentUser.user.id}`
+export const getPosts = async (req, res, next) => {
+  // req.query will (probably) have
+  // Query Modifiers: startIndex, limit, order,
+  // Conditions: userId, slug, searchTerm
+
+  // Query modifiers
+  const startIndex = parseInt(req.query.startIndex) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortDirection = req.query.order === "asc" ? 1 : -1;
+  const latest = req.query.latest;
+  const latestLimit = req.query.latest
+    ? parseInt(req.query.latest) || 10
+    : null;
+
+  // Building dynamic query objects:
+  // The spread operator with a logical AND is a concise way to conditionally add properties to an object.
+  // If the AND returned an object, it spreads its properties into the parent object.
+  /*
+    ...("123" && { _id: "123" })
+    Becomes: _id: "123"
+    ...(undefined && { _id: undefined })
+    Becomes: nothing (no properties added)
+    Or in a ore verbose way:
+    let query = {};
+    if (req.query.postId) {
+        query._id = req.query.postId;
+    }
+   */
+  try {
+    const posts = await Post.find({
+      draft: false,
+      // by postId
+      ...(req.query.postId && { _id: req.query.postId }),
+      // by user id
+      ...(req.query.userId && { userId: req.query.userId }),
+      // by slug
+      ...(req.query.slug && { slug: req.query.slug }),
+      // by search term
+      ...(req.query.searchTerm && {
+        $or: [
+          { title: req.query.searchTerm, $options: "i" },
+          { content: req.query.content, $options: "i" },
+        ],
+      }),
+    })
+      .populate(
+        "userId",
+        "personal_info.fullname personal_info.profile_img personal_info.username"
+      )
+      .sort({ createdAt: latest ? -1 : sortDirection }) // if latest, sort by newest
+      .select(
+        `slug title description banner ${
+          latest ? "" : "content activity"
+        } tags createdAt -_id`
+      )
+      .skip(latest ? 0 : startIndex) // if latest, don't skip
+      .limit(latestLimit || limit);
+
+    // Will show "string" if stringified or "object" if not
+    logger.info(typeof posts[0].content);
+    res.status(200).json({ posts });
+  } catch (error) {
     next(error);
   }
 };

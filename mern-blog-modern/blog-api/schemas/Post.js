@@ -1,13 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 import Tag from "./Tag.js";
 import { generateSlug } from "../utils/slugify.js";
+import User from "./User.js";
 
 const postSchema = mongoose.Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "users",
+      ref: User,
     },
     slug: {
       type: String,
