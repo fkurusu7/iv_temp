@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import Tag from "./Tag.js";
 import { generateSlug } from "../utils/slugify.js";
 import User from "./User.js";
+import Tag from "./Tag.js";
 
 const postSchema = mongoose.Schema(
   {
@@ -39,7 +39,7 @@ const postSchema = mongoose.Schema(
     },
     tags: {
       type: [Schema.Types.ObjectId],
-      ref: "tag",
+      ref: Tag,
     },
     activity: {
       total_likes: {

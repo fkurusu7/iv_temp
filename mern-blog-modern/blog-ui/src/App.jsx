@@ -4,6 +4,7 @@ import UserAuthForm from "./pages/userAuthForm.page";
 import Editor from "./pages/editor.pages";
 import PrivateRoute from "./components/private-route.component";
 import Home from "./pages/home.page";
+import SearchPost from "./pages/search.page";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="/signin" element={<UserAuthForm type={"signin"} />} />
           <Route path="/signup" element={<UserAuthForm type={"signup"} />} />
+          <Route path="/search/:query" element={<SearchPost />} />
         </Route>
       </Routes>
     </div>

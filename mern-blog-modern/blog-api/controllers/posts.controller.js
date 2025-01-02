@@ -235,24 +235,26 @@ export const createPost = async (req, res, next) => {
 
 // Dynamic funtcion to get (different) post(s). Returns an Array
 // `/api/post/getPosts?userId=${currentUser.user.id}`
+// `/api/post/getPosts?searchTerm=javascript`  <== "javascript" in this case is a Tag
+// `/api/post/getPosts?searchTerm=testing`  <== "testing" could be in the Title or Content
 export const getPosts = async (req, res, next) => {
   // req.query will (probably) have
   // Query Modifiers: startIndex, limit, order,
   // Conditions: userId, slug, searchTerm
+  logger.info(`SEARCH: ${req.query.searchTerm}`);
 
   // Query modifiers
   const startIndex = parseInt(req.query.startIndex) || 0;
   const limit = parseInt(req.query.limit) || 10;
   const sortDirection = req.query.order === "asc" ? 1 : -1;
   const latest = req.query.latest;
-  const latestLimit = req.query.latest
-    ? parseInt(req.query.latest) || 10
-    : null;
+  const latestLimit = req.query.latest ? parseInt(req.query.latest) || 5 : null;
 
-  // Building dynamic query objects:
-  // The spread operator with a logical AND is a concise way to conditionally add properties to an object.
-  // If the AND returned an object, it spreads its properties into the parent object.
-  /*
+  /**  
+   * Building dynamic query objects:
+    The spread operator with a logical AND is a concise way to conditionally add properties to an object.
+    If the AND returned an object, it spreads its properties into the parent object.
+  
     ...("123" && { _id: "123" })
     Becomes: _id: "123"
     ...(undefined && { _id: undefined })
@@ -275,8 +277,14 @@ export const getPosts = async (req, res, next) => {
       // by search term
       ...(req.query.searchTerm && {
         $or: [
-          { title: req.query.searchTerm, $options: "i" },
-          { content: req.query.content, $options: "i" },
+          { title: { $regex: `.*${req.query.searchTerm}.*`, $options: "i" } },
+          { content: { $regex: `.*${req.query.searchTerm}.*`, $options: "i" } },
+          {
+            "tags.name": {
+              $regex: `.*${req.query.searchTerm}.*`,
+              $options: "i",
+            },
+          },
         ],
       }),
     })
@@ -284,17 +292,17 @@ export const getPosts = async (req, res, next) => {
         "userId",
         "personal_info.fullname personal_info.profile_img personal_info.username"
       )
+      .populate("tags", "name slug -_id")
       .sort({ createdAt: latest ? -1 : sortDirection }) // if latest, sort by newest
       .select(
         `slug title description banner ${
-          latest ? "" : "content activity"
-        } tags createdAt -_id`
+          req.query.slug ? " content activity" : ""
+        } createdAt -_id`
       )
       .skip(latest ? 0 : startIndex) // if latest, don't skip
       .limit(latestLimit || limit);
 
     // Will show "string" if stringified or "object" if not
-    logger.info(typeof posts[0].content);
     res.status(200).json({ posts });
   } catch (error) {
     next(error);
