@@ -278,11 +278,24 @@ export const getPosts = async (req, res, next) => {
       ...(req.query.searchTerm && {
         $or: [
           { title: { $regex: `.*${req.query.searchTerm}.*`, $options: "i" } },
-          { content: { $regex: `.*${req.query.searchTerm}.*`, $options: "i" } },
           {
-            "tags.name": {
+            description: {
               $regex: `.*${req.query.searchTerm}.*`,
               $options: "i",
+            },
+          },
+          // TODO: Fix the search in the content field or Find another RTE
+          // { content: { $regex: `.*${req.query.searchTerm}.*`, $options: "i" } },
+          {
+            tags: {
+              $in: (
+                await Tag.find({
+                  name: {
+                    $regex: `.*${req.query.searchTerm}.*`,
+                    $options: "i",
+                  },
+                }).select("_id")
+              ).map((tag) => tag._id),
             },
           },
         ],
@@ -296,11 +309,16 @@ export const getPosts = async (req, res, next) => {
       .sort({ createdAt: latest ? -1 : sortDirection }) // if latest, sort by newest
       .select(
         `slug title description banner ${
-          req.query.slug ? " content activity" : ""
+          req.query.slug ? " content activity" : " content"
         } createdAt -_id`
       )
       .skip(latest ? 0 : startIndex) // if latest, don't skip
       .limit(latestLimit || limit);
+
+    logger.info(`==> POSTS: ${posts[0]}`);
+    logger.info(`==> POSTS.content: ${typeof posts[0].content}`);
+    logger.info(`==> POSTS.content.blocks: ${typeof posts[0].content.blocks}`);
+    logger.info(`==> POSTS: ${posts[0].content.blocks}`);
 
     // Will show "string" if stringified or "object" if not
     res.status(200).json({ posts });
