@@ -1,72 +1,85 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from "react";
-import { useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-function OtpInput({ length = 4, onOtpSubmit = () => {} }) {
+function OtpInput({ length = 4, onOtpSubmit }) {
   const [otp, setOtp] = useState(new Array(length).fill(""));
-  console.log(otp);
-  const otpInputRefs = useRef([]);
+
+  // To focus on the first OTP input
+  const inputRefs = useRef([]);
 
   useEffect(() => {
-    if (otpInputRefs.current[0]) {
-      otpInputRefs.current[0].focus();
+    // if the first input in refs has a value, focus on it
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus();
     }
   }, []);
 
-  const handleChange = (i, ev) => {
+  const handleChange = (index, ev) => {
     const value = ev.target.value;
 
+    // validate value is a number
     if (isNaN(value)) return;
 
+    // make a copy of otp array
     const newOtp = [...otp];
-    // Allow only one input to be the last one
-    newOtp[i] = value.substring(value.length - 1);
+    // allow only one value for the otp number
+    newOtp[index] = value.substring(value.length - 1);
+    // add value to otp array
     setOtp(newOtp);
 
-    // Move to the next input if current field is populated
-    if (value && i < length - 1 && otpInputRefs.current[i + 1]) {
-      otpInputRefs.current[i + 1].focus();
+    // Move to next input:
+    // 1. value is present
+    // 2. index (0...3) is one less than length (4 - 1 = 3)
+    // 3. inputRefs.current[index + 1] should be something after the current input
+    if (value && index < length - 1 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1].focus();
     }
 
-    // submit once all otp numbers are entered
-    const combinedOtp = newOtp.join("");
-    if (combinedOtp.length === length) onOtpSubmit(combinedOtp);
-  };
-
-  const handleClick = (i) => {
-    otpInputRefs.current[i].setSelectionRange(1, 1);
-
-    if (i > 0 && !otp[i - 1]) {
-      otpInputRefs.current[otp.indexOf("")].focus();
+    // execute a function once all otp inputs have been populated
+    // submit trigger
+    if (index === length - 1) {
+      const combinedOtp = newOtp.join("");
+      if (combinedOtp.length === length) onOtpSubmit(combinedOtp);
     }
   };
 
-  const handleKeyDown = (i, ev) => {
+  // move cursor to the right of current value in an input
+  const handleClick = (index) => {
+    inputRefs.current[index].setSelectionRange(1, 1);
+
+    // if click on any input where index is > 0, go back to the first empty input
+    if (index > 0) {
+      inputRefs.current[otp.indexOf("")].focus();
+    }
+  };
+
+  // Going back in the otp inputs when backspace is pressed
+  const handleKeyDown = (index, ev) => {
+    // 2nd validation. otp[index] is empty or doesn't exist
+    // 4th validation. have access to previous input from current input
     if (
       ev.key === "Backspace" &&
-      !otp[i] &&
-      i > 0 &&
-      otpInputRefs.current[i - 1]
+      !otp[index] &&
+      index > 0 &&
+      inputRefs.current[index - 1]
     ) {
-      // move focus to the previous input field on backspace
-      otpInputRefs.current[i - 1].focus();
+      inputRefs.current[index - 1].focus();
     }
   };
 
   return (
     <div className="otp-inputs">
-      {otp.map((val, i) => {
+      {otp.map((value, index) => {
         return (
           <input
+            key={index}
             className="otp-input"
-            ref={(input) => (otpInputRefs.current[i] = input)}
-            key={i}
-            value={val}
             type="text"
-            onChange={(ev) => handleChange(i, ev)}
-            onClick={() => handleClick(i)}
-            onKeyDown={(ev) => handleKeyDown(i, ev)}
+            ref={(input) => (inputRefs.current[index] = input)}
+            value={value}
+            onChange={(ev) => handleChange(index, ev)}
+            onClick={() => handleClick(index)}
+            onKeyDown={(ev) => handleKeyDown(index, ev)}
           />
         );
       })}

@@ -46,7 +46,7 @@ export const getImageUploadUrl = async (req, res, next) => {
   }
 };
 
-// Image upload from Editor.js
+// Image upload from Editor.js from an internet image
 export const fetchImageByUrl = async (req, res, next) => {
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -257,15 +257,19 @@ export const getPosts = async (req, res, next) => {
   
     ...("123" && { _id: "123" })
     Becomes: _id: "123"
-    ...(undefined && { _id: undefined })
+    ...(undefined && { _id: "1234" })
     Becomes: nothing (no properties added)
-    Or in a ore verbose way:
+    Or in a more verbose way:
     let query = {};
     if (req.query.postId) {
         query._id = req.query.postId;
     }
    */
   try {
+    // TODO: Increment the total reads field when ready by slug with
+    // findOneAndUpdate({slug}, {$inc: {"activity.totalreads": 1}}).populate(....)
+    // TODO: related posts based on tags
+
     const posts = await Post.find({
       draft: false,
       // by postId
