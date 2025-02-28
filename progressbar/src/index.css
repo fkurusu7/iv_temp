@@ -6,7 +6,8 @@
   --clr-font: #ffffffde;
   --bg-color: #242424;
   --clr-primary: #646cff;
-  --clr-progress: #646cff;
+  --clr-progress: #56ce46;
+  --bxs: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 html {
@@ -33,13 +34,14 @@ body {
 }
 
 .container {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--bxs);
   width: 50rem;
   height: 50vh;
   padding: 2rem;
 }
 
 .container h1 {
+  color: var(--clr-primary);
   font-size: 2rem;
   font-weight: bold;
   text-align: center;
@@ -49,14 +51,14 @@ body {
   border-radius: 0.5rem;
   height: 3rem;
   margin: 3rem auto;
-  outline: 1px solid var(--clr-primary);
+  box-shadow: var(--bxs);
   position: relative;
   overflow: hidden;
   width: 90%;
 }
 .progressbar span {
   font-size: 1.5rem;
-  font-weight: 100;
+  font-weight: bolder;
   position: absolute;
   top: 50%;
   left: 50%;

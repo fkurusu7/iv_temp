@@ -6,9 +6,13 @@ function App() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    setInterval(() => {
-      setValue((val) => val + 1);
+    const intervalId = setInterval(() => {
+      setValue((val) => {
+        return val < 100 ? val + 1 : 100;
+      });
     }, 100);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (

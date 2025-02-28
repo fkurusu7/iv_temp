@@ -1,23 +1,19 @@
-import { useEffect, useState } from "react";
-
 /* eslint-disable react/prop-types */
 function ProgressBar({ value = 0, onComplete = () => {} }) {
   const MIN = 0;
   const MAX = 100;
-  const [percentage, setPercentage] = useState(value);
 
-  useEffect(() => {
-    setPercentage(Math.min(MAX, Math.max(value, MIN)).toFixed());
+  // this percentage var is derived state
+  const percentage = Math.min(MAX, Math.max(value, MIN)).toFixed();
 
-    if (value > 100) {
-      onComplete();
-    }
-  }, [onComplete, value]);
+  if (value > 100) {
+    onComplete();
+  }
 
   return (
     <div className="progressbar">
-      <span style={{ color: percentage > 49 ? "#ffffffde" : "#a0a4ff" }}>
-        {percentage}%
+      <span style={{ color: percentage > 50 ? "#242424" : "#646cff" }}>
+        {percentage} %
       </span>
       <div
         className="progress"
