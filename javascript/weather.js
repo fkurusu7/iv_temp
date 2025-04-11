@@ -23,7 +23,8 @@ const tempMin = document.getElementById("tempMin");
 date.innerHTML = newDate;
 
 const getWeather = async () => {
-  const cityName = document.getElementById("searchBarinput").value;
+  const searchInput = document.getElementById("searchBarinput");
+  const cityName = searchInput.value;
   try {
     const response = await fetch(
       `${API_URL}?q=${cityName}&units=metric&APPID=${OPEN_WEATHER_API_KEY}`,
@@ -41,9 +42,44 @@ const getWeather = async () => {
     temp.innerHTML = `<h2>${Math.round(weatherData.main.temp)}ºC</h2>`;
     tempMax.innerHTML = `${weatherData.main.temp_max}ºC`;
     tempMin.innerHTML = `${weatherData.main.temp_min}ºC`;
+
+    searchInput.value = "";
   } catch (error) {
     console.log(error);
   }
 };
 
 search.addEventListener("click", getWeather);
+
+//************************************************
+//************************************************
+//************************************************
+
+const POKEMON_API = "https://pokeapi.co/api/v2/pokemon/";
+const getPokemon = async () => {
+  const pokemonInput = document.getElementById("pokemonInput");
+  try {
+    const pokemonName = pokemonInput.value.toLowerCase();
+    const response = await fetch(`${POKEMON_API}${pokemonName}`);
+    console.log(response);
+    if (!response.ok) {
+      throw new Error("Could not find pokemon");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    const pokemonImage = data.sprites.front_default;
+
+    const displayPokemon = document.getElementById("pokemonImg");
+    displayPokemon.src = pokemonImage;
+    displayPokemon.style.display = "block";
+  } catch (error) {
+    const pError = document.getElementById("pokemonError");
+    pError.style.display = "block";
+    pError.innerText = error.message;
+  } finally {
+    pokemonInput.value = "";
+  }
+};
+const searchPokemon = document.getElementById("searchPokemonIcon");
+searchPokemon.addEventListener("click", getPokemon);

@@ -25,10 +25,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 3rem;
   height: 100vh;
 }
 
-#app {
+#app,
+#pokemonapp {
   background: var(--color-primary);
   background: linear-gradient(
     325deg,
@@ -43,13 +45,21 @@ body {
   position: relative;
   text-align: center;
   width: 42rem;
-}
-#searchBar {
+
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+}
+#searchBar,
+#searchPokemonBar {
+  display: flex;
+  justify-content: center;
   padding: 0 4rem;
   margin-bottom: 3rem;
 }
-#searchBarinput {
+#searchBarinput,
+#pokemonInput {
   background-color: transparent;
   border: none;
   border-bottom: 0.1rem solid var(--color-dark-2);
@@ -57,12 +67,14 @@ body {
   padding: 0.5rem;
   width: 90%;
 }
-#searchBarinput::placeholder {
+#searchBarinput::placeholder,
+#pokemonInput::placeholder {
   color: var(--color-dark-2);
   opacity: 0.6;
 }
 
-#searchIcon {
+#searchIcon,
+#searchPokemonIcon {
   cursor: pointer;
   border: none;
   background-color: transparent;
@@ -84,4 +96,17 @@ body {
 
 #extraInfo .col .info h5 {
   font-size: 1.6rem;
+}
+#pokemonapp h2 {
+  font-size: 2rem;
+  font-weight: 100;
+  margin-bottom: 2rem;
+}
+#screen {
+  height: 10rem;
+  width: 10rem;
+}
+#pokemonImg,
+#pokemonError {
+  display: none;
 }
