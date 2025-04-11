@@ -1,0 +1,87 @@
+:root {
+  --color-dark-1: #1c1917;
+  --color-dark-2: #44403c;
+  --color-light: #ffffff;
+  --color-primary: #ffb91b;
+  --color-secondary: #e0e7ff;
+  --border-radius: 7px;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  color: var(--color-dark-1);
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--color-dark-1);
+  box-sizing: border-box;
+  font-size: 62.5%;
+  font-family: "Montserrat", sans-serif;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+#app {
+  background: var(--color-primary);
+  background: linear-gradient(
+    325deg,
+    rgba(255, 185, 27, 1) 0%,
+    rgb(235, 195, 35) 50%,
+    rgba(255, 185, 27, 1) 100%
+  );
+  border-radius: var(--border-radius);
+  height: 45rem;
+  overflow: hidden;
+  padding: 4rem 0rem;
+  position: relative;
+  text-align: center;
+  width: 42rem;
+}
+#searchBar {
+  display: flex;
+  padding: 0 4rem;
+  margin-bottom: 3rem;
+}
+#searchBarinput {
+  background-color: transparent;
+  border: none;
+  border-bottom: 0.1rem solid var(--color-dark-2);
+  outline: none;
+  padding: 0.5rem;
+  width: 90%;
+}
+#searchBarinput::placeholder {
+  color: var(--color-dark-2);
+  opacity: 0.6;
+}
+
+#searchIcon {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: var(--color-dark-2);
+  font-size: 1.5rem;
+}
+
+#extraInfo {
+  position: absolute;
+  bottom: 0.5rem;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+
+  padding-bottom: 3rem;
+  width: 100%;
+}
+
+#extraInfo .col .info h5 {
+  font-size: 1.6rem;
+}
