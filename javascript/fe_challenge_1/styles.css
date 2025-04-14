@@ -1,0 +1,137 @@
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --border-sm: 1px solid var(--color-light-1);
+  --border-md: 2px solid var(--color-light-1);
+  --border-radius-md: 7px;
+  --color-dark: #1c1917;
+  --color-light-1: #fafaf9;
+  --color-light-2: #d6d3d1;
+}
+html {
+  background-color: var(--color-dark);
+  box-sizing: border-box;
+  color: var(--color-light-2);
+  font-size: 62.5%;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.container {
+  min-height: 100vh;
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 3rem 8rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.title {
+  text-align: center;
+  font-size: 3rem;
+}
+.actions {
+  margin: 3rem 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+}
+#search {
+  border: none;
+  border-bottom: 1px solid var(--color-light-2);
+  background-color: transparent;
+  color: var(--color-light-2);
+  font-size: 1.7rem;
+  padding: 0.2rem 0.5rem;
+  width: 15ch;
+}
+#search:focus {
+  border: none;
+  outline: none;
+  border-bottom: 1px solid var(--color-light-2);
+}
+
+.filter__group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filter__group label {
+  font-size: 1.6rem;
+  font-weight: 200;
+}
+
+.filter__group select {
+  background-color: var(--color-light-2);
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: var(--color-dark);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+#inventory {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 6rem;
+  row-gap: 3rem;
+  padding: 2rem 5rem;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  cursor: pointer;
+  transition: all 0.1s ease-out;
+}
+.product:hover {
+  transform: scale(1.01);
+}
+.product__name {
+  color: var(--color-light-2);
+  font-size: 1.5rem;
+  font-weight: 100;
+}
+.product__img {
+  border-radius: var(--border-radius-md);
+  height: 10rem;
+  width: 10rem;
+}
+.product__price {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+}
+.product__categories {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product__category {
+  background-color: var(--color-light-2);
+  border-radius: var(--border-radius-md);
+  color: var(--color-dark);
+  font-weight: 500;
+  font-size: 1.1rem;
+  outline: 1px solid transparent;
+  padding: 0.3rem 0.4rem;
+  transition: all 0.4s ease-out;
+}
+
+.product__category:hover {
+  background-color: var(--color-dark);
+  color: var(--color-light-2);
+  outline: var(--color-light-2);
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css">
+  <title>FE Challnege</title>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="title">
+      Productos Inc.
+    </h1>
+    <div class="actions">
+      <div class="filter__group">
+        <input type="text" id="search" placeholder="Search a product">
+      </div>
+
+      <div class="filter__group">
+        <label for="price-range">Price Range</label>
+        <select name="price-range" id="price-range">
+          <option value="">All Prices</option>
+          <option value="0-500">$0 - $500</option>
+          <option value="500-1000">$500 - $1000</option>
+          <option value="1000+">$1000+</option>
+        </select>
+      </div>
+
+      <div class="filter__group">
+        <label for="sort">Sort By</label>
+        <select name="sort" id="sort">
+          <option value="default">Default</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <section id="inventory">
+      <!-- <article class="product">
+        <h2 class="product__name">Product Name</h2>
+        <img src="./product.jpg" alt="product" class="product__img">
+        <p class="product__price">$23.99</p>
+        <span class="product__category">wear</span>
+      </article> -->
+    </section>
+  </div>
+  <script src="./index.js"></script>
+</body>
+
+</html>
