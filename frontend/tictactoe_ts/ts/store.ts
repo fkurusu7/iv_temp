@@ -1,4 +1,6 @@
-const initialValue = {
+import type { GameState, Player, GameStatus, Game } from "./types";
+
+const initialValue: GameState = {
   // [{ player: this.game.currentPlayer, squareId: 0 }]
   currentGameMoves: [],
   history: {
@@ -8,10 +10,11 @@ const initialValue = {
 };
 
 export default class Store extends EventTarget {
-  constructor(key, players) {
+  constructor(
+    private readonly storageKey: string,
+    private readonly players: Player[]
+  ) {
     super();
-    this.storageKey = key;
-    this.players = players;
   }
 
   get game() {
@@ -72,7 +75,7 @@ export default class Store extends EventTarget {
     return { playerWithStats, ties };
   }
 
-  playerMove(squareId) {
+  playerMove(squareId: number) {
     const stateClone = structuredClone(this.#getState());
     stateClone.currentGameMoves.push({
       player: this.game.currentPlayer,
@@ -83,7 +86,7 @@ export default class Store extends EventTarget {
   }
 
   reset() {
-    const stateClone = structuredClone(this.#getState());
+    const stateClone = structuredClone(this.#getState()) as GameState;
     const { status, moves } = this.game;
 
     // if the status is complete save the current game to history
@@ -102,20 +105,22 @@ export default class Store extends EventTarget {
   newRound() {
     this.reset();
 
-    const stateClone = structuredClone(this.#getState());
+    const stateClone = structuredClone(this.#getState()) as GameState;
     stateClone.history.allGames.push(...stateClone.history.currentRoundGames);
     stateClone.history.currentRoundGames = [];
 
     this.#setState(stateClone);
   }
 
-  #getState() {
+  #getState(): GameState {
     const item = window.localStorage.getItem(this.storageKey);
-    if (!item) return initialValue;
-    return JSON.parse(item);
+    if (!item) return initialValue as GameState;
+    return JSON.parse(item) as GameState;
   }
 
-  #setState(stateOrFunction) {
+  #setState(
+    stateOrFunction: GameState | ((prevState: GameState) => GameState)
+  ) {
     const prevState = this.#getState();
 
     let newState;

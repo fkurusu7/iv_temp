@@ -1,6 +1,14 @@
+/* type ElementObjectDict = {
+  [key in string]: Element;
+}; */
+
+import type { Game, Move, Player } from "./types";
+import type Store from "./store";
+
 class View {
-  $ = {};
-  $$ = {};
+  $: Record<string, Element> = {};
+  // $: ElementObjectDict = {};
+  $$: Record<string, NodeListOf<Element>> = {};
 
   constructor() {
     // All selected HTML elements
@@ -31,7 +39,7 @@ class View {
     this.$.tiesStatsElement = this.#qs("tie-stats");
   }
 
-  render(game, stats) {
+  render(game: Store["game"], stats: Store["stats"]) {
     const { playerWithStats, ties } = stats;
     const {
       currentPlayer,
@@ -55,16 +63,16 @@ class View {
   /**
    Register all event listeners
   */
-  bindGameResetEvent(handler) {
+  bindGameResetEvent(handler: EventListener) {
     this.$.resetBtn.addEventListener("click", handler);
     this.$.modalButtonElement.addEventListener("click", handler);
   }
 
-  bindNewRoundEvent(handler) {
+  bindNewRoundEvent(handler: EventListener) {
     this.$.newRoundBtn.addEventListener("click", handler);
   }
 
-  bindPlayerMoveEvent(handler) {
+  bindPlayerMoveEvent(handler: (el: Element) => void) {
     this.#delegate(this.$.gridElement, '[data-id="square"]', "click", handler);
     /* this.$$.squares.forEach((square) =>
       square.addEventListener("click", () => handler(square))
@@ -85,7 +93,7 @@ class View {
     this.$.menuBtnElement.classList.remove("border");
   }
 
-  #setTurnIndicator(player, opponent) {
+  #setTurnIndicator(player: Player, opponent: Player) {
     const icon = document.createElement("i");
     const label = document.createElement("p");
 
@@ -99,19 +107,19 @@ class View {
     this.$.turnElement.replaceChildren(icon, label);
   }
 
-  #updateStats(p1wins, p2wins, ties) {
-    this.$.player1StatsElement.innerText = `${p1wins} wins`;
-    this.$.player2StatsElement.innerText = `${p2wins} wins`;
-    this.$.tiesStatsElement.innerText = `${ties}`;
+  #updateStats(p1wins: number, p2wins: number, ties: number) {
+    this.$.player1StatsElement.textContent = `${p1wins} wins`;
+    this.$.player2StatsElement.textContent = `${p2wins} wins`;
+    this.$.tiesStatsElement.textContent = `${ties}`;
   }
 
-  #handlePlayerMove(squareEl, player) {
+  #handlePlayerMove(squareEl: Element, player: Player) {
     const icon = document.createElement("i");
     icon.classList.add("fa-solid", player.iconClass, player.colorClass);
     squareEl.replaceChildren(icon);
   }
 
-  #openModal(message) {
+  #openModal(message: string) {
     const pTurnLabel = document.createElement("p");
     pTurnLabel.textContent = "Game over!";
     this.$.turnElement.replaceChildren(pTurnLabel);
@@ -134,7 +142,7 @@ class View {
     this.$$.squares.forEach((square) => square.replaceChildren());
   }
 
-  #initializeMoves(moves) {
+  #initializeMoves(moves: Move[]) {
     this.$$.squares.forEach((square) => {
       const existingMove = moves.find((move) => move.squareId === +square.id);
       if (existingMove) {
@@ -144,7 +152,7 @@ class View {
   }
 
   // QuerySelector helper functions
-  #qs(selector, parent) {
+  #qs(selector: string, parent?: Element) {
     const el = parent
       ? parent.querySelector(`[data-id="${selector}"]`)
       : document.querySelector(`[data-id="${selector}"]`);
@@ -153,7 +161,7 @@ class View {
 
     return el;
   }
-  #qsa(selector) {
+  #qsa(selector: string) {
     const elList = document.querySelectorAll(`[data-id="${selector}"]`);
 
     if (!elList) throw new Error(`Could not find elements for ${selector}`);
@@ -161,8 +169,17 @@ class View {
     return elList;
   }
 
-  #delegate(el, selector, eventKey, handler) {
+  #delegate(
+    el: Element,
+    selector: string,
+    eventKey: string,
+    handler: (el: Element) => void
+  ) {
     el.addEventListener(eventKey, (event) => {
+      if (!(event.target instanceof Element)) {
+        throw new Error("Event target not found");
+      }
+
       if (event.target.matches(selector)) {
         handler(event.target);
       }

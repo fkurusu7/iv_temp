@@ -1,7 +1,8 @@
 import Store from "./store.js";
+import { Player } from "./types.js";
 import View from "./view.js";
 
-const players = [
+const players: Player[] = [
   { id: 1, name: "Player 1", iconClass: "fa-x", colorClass: "yellow" },
   { id: 2, name: "Player 2", iconClass: "fa-o", colorClass: "turquoise" },
 ];
