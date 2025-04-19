@@ -1,12 +1,11 @@
-/* type ElementObjectDict = {
-  [key in string]: Element;
-}; */
-
 import type { Game, Move, Player } from "./types";
-import type Store from "./store";
+import { DerivedGame, DerivedStats } from "./store";
 
 class View {
   $: Record<string, Element> = {};
+  /* type ElementObjectDict = {
+    [key in string]: Element;
+  }; */
   // $: ElementObjectDict = {};
   $$: Record<string, NodeListOf<Element>> = {};
 
@@ -39,7 +38,7 @@ class View {
     this.$.tiesStatsElement = this.#qs("tie-stats");
   }
 
-  render(game: Store["game"], stats: Store["stats"]) {
+  render(game: DerivedGame, stats: DerivedStats) {
     const { playerWithStats, ties } = stats;
     const {
       currentPlayer,

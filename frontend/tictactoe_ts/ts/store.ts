@@ -1,4 +1,4 @@
-import type { GameState, Player, GameStatus, Game } from "./types";
+import type { GameState, Player, GameStatus, Game, Move } from "./types";
 
 const initialValue: GameState = {
   // [{ player: this.game.currentPlayer, squareId: 0 }]
@@ -9,6 +9,20 @@ const initialValue: GameState = {
   },
 };
 
+// Union
+type PlayerWithWins = Player & { wins: number };
+export type DerivedStats = {
+  playerWithStats: PlayerWithWins[];
+  ties: number;
+};
+
+export type DerivedGame = {
+  currentPlayer: Player;
+  nextPlayer: Player;
+  moves: Move[];
+  status: GameStatus;
+};
+
 export default class Store extends EventTarget {
   constructor(
     private readonly storageKey: string,
@@ -17,7 +31,7 @@ export default class Store extends EventTarget {
     super();
   }
 
-  get game() {
+  get game(): DerivedGame {
     const state = this.#getState();
     const currentPlayer = this.players[state.currentGameMoves.length % 2];
     const nextPlayer =
@@ -58,7 +72,7 @@ export default class Store extends EventTarget {
     };
   }
 
-  get stats() {
+  get stats(): DerivedStats {
     const gameHistory = this.#getState().history;
 
     const playerWithStats = this.players.map((player) => {
