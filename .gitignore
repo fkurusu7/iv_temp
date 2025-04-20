@@ -8,6 +8,8 @@
 /mern-blog-modern/blog-api/.env
 /frontend/tictactoe_ts/node_modules 
 /frontend/tictactoe_ts/dist
+/frontend/light-dark/node_modules 
+/frontend/light-dark/dist
 /backend/node_ts_auth/node_modules
 /backend/node_ts_auth/.env
 /backend/node_ts_auth/dist
