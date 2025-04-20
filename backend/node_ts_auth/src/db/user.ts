@@ -10,6 +10,17 @@ const userSchema = new Schema({
   },
 });
 
+export interface User {
+  _id: string;
+  username: string;
+  email: string;
+  authentication: {
+    password: string;
+    salt: string;
+    sessionToken?: string;
+  };
+}
+
 export const UserModel = model("UserTMP", userSchema);
 
 // User functions

@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 
 import connectDB from "./db/database";
+import router from "./routes/authentication";
 
 connectDB();
 
@@ -24,8 +25,10 @@ app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+app.use(router);
+
 const server = http.createServer(app);
 
-server.listen(8080, () => {
-  console.log(`Server running on http://localhost:8080`);
+server.listen(5174, () => {
+  console.log(`Server running on http://localhost:5174`);
 });
