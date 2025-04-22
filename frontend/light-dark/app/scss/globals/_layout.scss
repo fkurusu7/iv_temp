@@ -1,0 +1,11 @@
+@use "./../utils/index" as *;
+
+.container {
+  max-width: rem(1110);
+  margin: 0 auto;
+  padding: 0 rem(25);
+
+  @include breakpoint(large) {
+    padding: 0;
+  }
+}

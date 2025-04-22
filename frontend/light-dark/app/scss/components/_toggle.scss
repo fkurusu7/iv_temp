@@ -1,10 +1,90 @@
 @use "./../utils/index" as *;
 
 .toggle {
+  border: none;
+
+  display: grid;
+  grid-template-columns: 1fr rem(60) 1fr;
+  grid-template-rows: repeat(2, 1fr);
+  justify-items: center;
+  align-items: center;
+  column-gap: rem(5);
+
+  & label {
+    color: var(--text-dark2);
+    cursor: pointer;
+    font-size: rem(12);
+    text-align: center;
+
+    &[for="dark"] {
+      grid-column: 1 / 2;
+    }
+    &[for="system"] {
+      grid-column: 2 / 3;
+      grid-row: 2 / -1;
+      margin-top: rem(5);
+    }
+    &[for="light"] {
+      grid-column: 3 / 4;
+    }
+  }
+
+  &__wrapper {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+
+    height: rem(24);
+
+    position: relative;
+  }
+
+  & input[type="radio"] {
+    cursor: pointer;
+    margin: 0;
+    margin-right: rem(-3);
+    // opacity: 0;
+    width: rem(20);
+    z-index: 3;
+
+    &#dark:checked ~ .toggle__button {
+      left: rem(3);
+      right: 100%;
+    }
+    &#light:checked ~ .toggle__button {
+      left: 60%;
+      right: rem(3);
+    }
+    &#system:checked ~ .toggle__button {
+      left: 32%;
+    }
+  }
+
+  &__background {
+    background: linear-gradient(
+      225deg,
+      var(--toggle-bg-end) 0%,
+      var(--toggle-bg-start) 98%
+    );
+    border-radius: rem(20);
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    width: 100%;
+
+    position: absolute;
+    top: 0;
+  }
   &__button {
-    background-color: var(--toggle);
+    background-color: var(--dark-bg);
     border-radius: 50%;
-    height: rem(16);
-    width: rem(16);
+    height: rem(18);
+    transition: all 0.2s ease-in-out;
+    width: rem(18);
+
+    position: absolute;
+    top: rem(3);
+    left: rem(3);
+    right: 100%;
   }
 }

@@ -35,5 +35,32 @@
       }
     </style>
   </head>
-  <body></body>
+  <body>
+    <header class="header container">
+      <div class="header__title">
+        <h1>Social media Dashboard</h1>
+        <p>Total Followers: 23,004</p>
+      </div>
+
+      <fieldset
+        class="header__toggle toggle"
+        aria-label="theme toggle"
+        role="radiogroup"
+      >
+        <label for="dark">Dark</label>
+        <label for="system">System</label>
+        <label for="light">Light</label>
+        <div class="toggle__wrapper">
+          <input type="radio" name="theme" id="dark" />
+          <input type="radio" name="theme" id="system" checked />
+          <input type="radio" name="theme" id="light" />
+          <span class="toggle__background"></span>
+          <span class="toggle__button"></span>
+        </div>
+      </fieldset>
+    </header>
+    <main class="container">
+      <section>CARDS</section>
+    </main>
+  </body>
 </html>
