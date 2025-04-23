@@ -22,6 +22,7 @@
   overflow: hidden;
   padding: rem(25);
   text-align: center;
+  transition: var(--transition-color-mode);
   width: rem(200);
 
   &:hover {

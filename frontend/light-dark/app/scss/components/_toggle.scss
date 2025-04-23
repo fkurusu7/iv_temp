@@ -2,10 +2,10 @@
 
 .toggle {
   border: none;
+  transition: var(--transition-color-mode);
 
   display: grid;
   grid-template-columns: rem(70) rem(50);
-
   justify-items: center;
   align-items: center;
   column-gap: rem(2);
