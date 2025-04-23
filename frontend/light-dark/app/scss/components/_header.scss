@@ -10,15 +10,13 @@
 
   &__title {
     & h1 {
+      color: var(--text-color);
       margin-bottom: rem(3);
     }
     & p {
-      color: var(--dark-text1);
+      color: var(--text-color2);
       font-size: rem(15);
       font-weight: 700;
     }
-  }
-
-  &__toggle {
   }
 }
