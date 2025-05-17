@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <title>Expandable Sidebar</title>
+  </head>
+  <body>
+    <aside>
+      <nav>
+        <ul>
+          <li>
+            <a href="#" class="active">
+              <i class="bx bx-home-circle"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#"><i class="bx bx-cog"></i><span>Explore</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="bx bx-chat"></i><span>Slideshow</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="bx bx-chat"></i><span>Collections</span></a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="bx bx-cloud-download"></i>
+              <span>Downloads</span>
+            </a>
+          </li>
+          <li>
+            <a href="#"><i class="bx bx-chat"></i><span>Messages</span></a>
+          </li>
+          <li>
+            <a href="#"><i class="bx bx-cog"></i><span>Settings</span></a>
+          </li>
+          <li>
+            <a href="#" data-resize-btn="">
+              <i class="bx bx-chevrons-right"></i>
+              <span>Collapse</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <main>
+      <h1>Explore Sidebar</h1>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
+        dolorem eum molestiae ad ratione eos dignissimos commodi! Fuga soluta
+        numquam dicta autem tenetur molestias distinctio accusantium rerum
+        nostrum voluptatum? Ratione voluptate architecto et, maiores molestias
+        itaque unde neque aliquid deleniti cumque. Nostrum consequatur, officia
+        vero, molestiae ea voluptatibus assumenda molestias minus cumque cum
+        iste sunt nihil accusamus et nam sint, optio asperiores quasi
+        praesentium. Quae enim repellendus accusantium nisi nemo aliquam ipsa,
+        alias consequuntur blanditiis quos beatae neque laborum saepe tempore
+        provident a vitae sint commodi hic ut, error itaque nulla ad eaque!
+        Optio quia omnis dolorem esse, laudantium impedit.
+      </p>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
+        dolorem eum molestiae ad ratione eos dignissimos commodi! Fuga soluta
+        numquam dicta autem tenetur molestias distinctio accusantium rerum
+        nostrum voluptatum? Ratione voluptate architecto et, maiores molestias
+        itaque unde neque aliquid deleniti cumque. Nostrum consequatur, officia
+        vero, molestiae ea voluptatibus assumenda molestias minus cumque cum
+        iste sunt nihil accusamus et nam sint, optio asperiores quasi
+        praesentium. Quae enim repellendus accusantium nisi nemo aliquam ipsa,
+        alias consequuntur blanditiis quos beatae neque laborum saepe tempore
+        provident a vitae sint commodi hic ut, error itaque nulla ad eaque!
+        Optio quia omnis dolorem esse, laudantium impedit.
+      </p>
+    </main>
+
+    <script>
+      const resizeBtn = document.querySelector('[data-resize-btn]');
+      resizeBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+
+        document.body.classList.toggle('sb-expanded');
+      });
+    </script>
+  </body>
+</html>

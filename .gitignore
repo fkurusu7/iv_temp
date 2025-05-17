@@ -15,3 +15,4 @@
 /backend/node_ts_auth/node_modules
 /backend/node_ts_auth/.env
 /backend/node_ts_auth/dist
+.DS_STORE

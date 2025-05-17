@@ -1,0 +1,108 @@
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+body {
+  --sb-width: 10rem;
+  background-color: black;
+  color: aliceblue;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.7;
+  font-size: 2rem;
+}
+body.sb-expanded {
+  --sb-width: 25rem;
+}
+
+p {
+  margin-bottom: 1.5rem;
+}
+
+// SIDEBAR
+aside {
+  position: fixed;
+  inset: 0 auto 0 0;
+  // top: 0;
+  // left: 0;
+  // bottom: 0;
+
+  background-color: #222930;
+  padding: 2rem;
+  // width: 10rem;
+  width: var(--sb-width);
+  transition: all 0.5s ease-in-out;
+}
+nav {
+  height: 100%;
+}
+nav ul {
+  height: 100%;
+  list-style: none;
+
+  display: flex;
+  flex-flow: column;
+  gap: 0.25rem;
+}
+nav ul li:last-child {
+  margin-top: auto;
+}
+
+nav a,
+nav a:link,
+nav a:visited {
+  border-radius: 0.4rem;
+  color: #fcfcfc;
+  font-size: 3rem;
+  padding: 0 1rem;
+  text-decoration: none;
+  transition: all 0.5s ease-in-out;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+nav a.active,
+nav a:hover,
+nav a:focus-visible {
+  outline: none;
+  color: #429cf7;
+  background-color: #2e3945;
+}
+
+nav a span {
+  font-size: 2.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.7s ease-in-out;
+}
+
+.sb-expanded aside nav a span {
+  opacity: 1;
+  visibility: visible;
+}
+.sb-expanded aside .bx-chevrons-right {
+  rotate: 180deg;
+}
+
+main {
+  margin-left: 10rem;
+  padding: 1rem 3rem;
+  transition: margin-left 0.5s ease-in-out;
+}
+
+@media (min-width: 90rem) {
+  main {
+    margin-left: var(--sb-width);
+  }
+}
