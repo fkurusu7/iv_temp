@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Simplest Form</title>
+  </head>
+  <body>
+    <div class="center">
+      <form id="form" class="form" autocomplete="off">
+        <input
+          type="email"
+          name="email"
+          id="email"
+          class="input"
+          placeholder="email"
+          required
+          pattern="[a-zA-Z0-9._+\-]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}"
+        />
+
+        <!-- "Label element" -->
+        <span class="label">Email</span>
+        <!-- The button content will be added dynamically -->
+        <button type="button" class="btn" onclick="submitData(this)"></button>
+      </form>
+    </div>
+    <script>
+      function submitData(button) {
+        const form = document.querySelector('#form');
+
+        button.disabled = true;
+
+        form.classList.toggle('load');
+
+        setTimeout(() => {
+          form.classList.replace('load', 'submit');
+
+          setTimeout(() => {
+            form.classList.toggle('submit');
+            form.submit();
+          }, 2500);
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>
