@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container" id="container"></div>
+    <script>
+      const COLORS = ['#e74c3c', '#8e44ad', '#3498db', '#e67e22', '#2ecc71'];
+      const SQUARES = 300;
+      const container = document.getElementById('container');
+
+      for (let i = 0; i < SQUARES; i++) {
+        const square = document.createElement('div');
+        square.classList.add('square');
+
+        // Add event listeners mouseover and mouseout
+        square.addEventListener('mouseover', () => setColor(square));
+        square.addEventListener('mouseout', () => removeColor(square));
+
+        container.appendChild(square);
+      }
+
+      function setColor(square) {
+        const color = getRandomColor();
+        square.style.background = color;
+        square.style.boxShadow = `0 0 .4rem ${color}, 0 0 1rem ${color}`;
+      }
+      function removeColor(square) {
+        const root = document.documentElement;
+        const squareBgOriginalColor =
+          root.style.getPropertyValue('--color-dark-2');
+        const squareOriginalBoxShadow =
+          root.style.getPropertyValue('--box-shadow');
+        square.style.background = squareBgOriginalColor;
+        square.style.boxShadow = squareOriginalBoxShadow;
+      }
+
+      function getRandomColor() {
+        return COLORS[Math.floor(Math.random() * COLORS.length)];
+      }
+    </script>
+  </body>
+</html>

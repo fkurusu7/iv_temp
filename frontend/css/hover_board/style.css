@@ -1,0 +1,54 @@
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-dark-1: #06101d;
+  --color-dark-2: #0e2542;
+  --color-light-1: #bbd4f5;
+  --color-light-2: #e9eef4;
+  --box-shadow: 0 0 2px var(--color-light-1);
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--color-dark-1);
+  font-family: Arial, Helvetica, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 70rem;
+}
+
+.square {
+  background-color: var(--color-dark-2);
+  box-shadow: 0 0 2px var(--color-light-1);
+  height: 4rem;
+  margin: 0.2rem;
+  width: 4rem;
+  transition: all 2s ease-in-out;
+}
+
+.square:is(:hover) {
+  transition-duration: 0s;
+  background-color: var(--color-light-2);
+}
