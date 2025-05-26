@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Password Toggle</title>
+  </head>
+  <body>
+    <div class="center">
+      <form autocomplete="off" class="form">
+        <div class="input__container">
+          <div class="label">Password</div>
+
+          <input type="password" name="" id="password" class="input" />
+
+          <div class="light">
+            <span onclick="toggle(this)">
+              <i class="bx bx-window-close beam__icon"></i>
+            </span>
+            <div class="beam"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const beam = document.querySelector('.beam');
+
+      let mouseMoveThrottle = null;
+      document.addEventListener('mousemove', (ev) => {
+        if (mouseMoveThrottle) return;
+
+        mouseMoveThrottle = requestAnimationFrame(() => {
+          const mouseY = ev.clientY;
+          const rotationRange = 64;
+          const rotationAngle =
+            (mouseY / window.innerHeight) * rotationRange - rotationRange / 2;
+
+          beam.style.transform = `translateY(-50%) rotate(${-rotationAngle}deg)`;
+
+          mouseMoveThrottle = null;
+        });
+      });
+
+      function toggle(btn) {
+        const passwordEl = document.querySelector('#password');
+
+        const btnIcon = document.querySelector('.beam__icon');
+        if (btn.querySelector('.bx-window-close')) {
+          passwordEl.setAttribute('type', 'text');
+          btnIcon.classList.remove('bx-window-close');
+          btnIcon.classList.add('bx-window');
+        } else {
+          passwordEl.setAttribute('type', 'password');
+          btnIcon.classList.remove('bx-window');
+          btnIcon.classList.add('bx-window-close');
+        }
+
+        beam.classList.toggle('on');
+        passwordEl.focus();
+      }
+    </script>
+  </body>
+</html>
