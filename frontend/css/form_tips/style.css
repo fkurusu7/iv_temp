@@ -1,0 +1,153 @@
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-dark-1: #181a19;
+  --color-dark-2: #262d28;
+  --color-dark-3: #1b211e;
+  --color-light-1: #e8fef3;
+  --color-light-2: #c8ecda;
+  --color-light-3: #b4f9d6;
+  --color-primary: #2a2323;
+  --color-secondary: #252222;
+
+  --border-r: 3rem;
+  --border-rs: 1rem;
+  --header-size: 10rem;
+  --padding-page: 5rem;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: var(--color-dark-1);
+  color: var(--color-light-1);
+  font-size: 3rem;
+}
+
+.container {
+  /* sticky footer */
+  background-color: inherit;
+  position: relative;
+  z-index: 1;
+  /* sticky footer */
+
+  padding: var(--padding-page);
+}
+
+.header {
+  height: var(--header-size);
+}
+
+.main {
+  min-height: calc(100vh - var(--padding-page) * 2 - var(--header-size));
+  width: 100%;
+  border: 1px solid red;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+h1 {
+  margin-block: 4rem;
+}
+
+.footer {
+  background-color: var(--color-dark-3);
+
+  height: 20rem;
+  padding: var(--padding-page);
+}
+
+@media screen and (min-width: 800px) {
+  /* sticky footer */
+  .footer {
+    bottom: 0;
+    position: sticky;
+  }
+  /* sticky footer */
+}
+
+/* FORM STYLES */
+
+input,
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+form {
+  padding: var(--padding-page);
+  border-radius: var(--border-r);
+  background-color: var(--color-dark-2);
+
+  display: grid;
+  gap: 2rem;
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.form__group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+label {
+  text-transform: uppercase;
+  font-size: 2rem;
+
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+input {
+  accent-color: var(--color-light-3);
+  outline: 2px solid transparent;
+  padding: 2rem 3rem;
+}
+input:not([type='checkbox']) {
+  width: 100%;
+}
+
+.fine-print {
+  font-size: 1.4rem;
+  margin: 1rem;
+}
+.fine-print a:link,
+.fine-print a:visited {
+  color: var(--color-light-3);
+}
+.form__group:has(.fine-print) {
+  /* checkbox */
+  grid-column: 1 / -1;
+
+  display: flex;
+  gap: 0.5rem;
+}
+
+button.form__contact {
+  justify-self: start;
+  outline: 1px solid var(--color-light-3);
+  padding: 1rem 2rem;
+}
+
+input,
+button.form__contact {
+  background-color: var(--color-secondary);
+  border: none;
+  border-radius: var(--border-rs);
+  color: var(--color-light-3);
+}
