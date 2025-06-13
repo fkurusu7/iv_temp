@@ -124,7 +124,7 @@ function sameFrequency(num1, num2) {
   const numToStr1 = num1.toString();
   const numToStr2 = num2.toString();
 
-  if (numToStr1.length !== numToStr2.toString().length) {
+  if (numToStr1.length !== numToStr2.length) {
     return false;
   }
 
@@ -249,11 +249,12 @@ function findAllDuplicates(arr) {
   const lookup = {};
 
   for (const key of arr) {
+    console.log(typeof key);
     lookup[key] = (lookup[key] || 0) + 1;
   }
 
   for (const key in lookup) {
-    if (lookup[key] === 2) result.push(key);
+    if (lookup[key] === 2) result.push(+key);
   }
 
   return result;
