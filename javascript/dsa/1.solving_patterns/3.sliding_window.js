@@ -104,7 +104,10 @@ function minSubArrayLen(numbers, target) {
 
   return minLength === Infinity ? 0 : minLength;
 }
-
+/* 
+5551694300
+5 - 1 - 2 Servios de poliza 
+  */
 console.log(minSubArrayLen([2, 3, 1, 2, 4, 3], 7)); // ==> 2 -> because [4,3] is the smallest subarray
 console.log(minSubArrayLen([2, 1, 6, 5, 4], 9)); // ==> 2 -> because [5,4] is the smallest subarray
 console.log(minSubArrayLen([3, 1, 7, 11, 2, 9, 8, 21, 62, 33, 19], 52)); // ==> 1 -> because [62] is greater than 52
